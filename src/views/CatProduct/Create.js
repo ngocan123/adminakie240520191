@@ -10,6 +10,7 @@ import {
   Button, Modal, ModalBody, ModalFooter, ModalHeader,
 } from 'reactstrap';
 import axioApi from './../../config/axioConfig';
+import configUrl from './../../config/configUrl';
 import qs from 'qs';
 import CreatableSelect from 'react-select/lib/Creatable';
 
@@ -29,8 +30,9 @@ class Create extends Component {
         modal: false,
         name : '', description : '', tags : [], alltags : [], 
         author : '', imagePath: '', selectedFile: null,
+        listCatProduct: [],
         gallerys: [],
-        parent_id: 0,
+        parent_id: '',
         imageNumber: '',
         title_seo: '',
         description_seo: '',
@@ -58,11 +60,11 @@ class Create extends Component {
 changeName(e){
     $this.setState({ name : e.target.value });
 }
-changeDescription(e){
+changeDescription(e) {
   $this.setState({ description : e.target.value });
 }
-changeParentId = (selectedparentId) => {
-    $this.setState({ parent_id : selectedparentId });
+changeParentId(e) {
+    $this.setState({ parent_id : e.target.value });
 }
 changeTitle_seo(e) {
   $this.setState({ title_seo : e.target.value });
@@ -76,6 +78,14 @@ changeKeyword_seo(e) {
 componentDidMount(){
   this.showAllImage();
   this.getAllImage();
+  this.getListCat();
+}
+getListCat(){
+  axioApi.get('/api/catproduct/getAll').then((res) => {
+    $this.setState({
+      listCatProduct: res.data
+    })
+  });
 }
 savePost(){
   var postdata = {
@@ -88,7 +98,7 @@ savePost(){
     description_seo: $this.state.description_seo,
     keyword_seo: $this.state.keyword_seo,
   }
-  axioApi.post('/api/catproduct/store',postdata).then((res) => {
+  axioApi.post('/api/catproduct/store', postdata).then((res) => {
     $this.props.history.push('/catproduct/index');
   });
 }
@@ -102,7 +112,7 @@ getAllImage(){
 }
 getIdImage(id){
   axioApi.get('/api/gallery/show/'+id).then((res) => {
-    console.log(res.data);
+    //console.log(res.data);
     $this.setState({
       imageNumber: res.data._id,
       imagePath: res.data.path
@@ -118,7 +128,7 @@ imageNumbers(){
 }
 imagePath(){
   if($this.state.imagePath!=''){
-    return <img src={"http://localhost:3008/"+$this.state.imagePath}/>;
+    return <img src={configUrl.baseURL+$this.state.imagePath}/>;
   }else{
     return '';
   }
@@ -127,12 +137,27 @@ showAllImage(){
   return $this.state.gallerys.map(function(post, i){
       return <Col xs="6" sm="3" className="text-center flol">
       <div color="divItemImage warning">
-        <img className="img100" src={'http://localhost:3008'+post.path} data-path={post.path} data-id={post._id}
+        <img className="img100" src={configUrl.baseURL+post.path} data-path={post.path} data-id={post._id}
          onClick={(e) => $this.getIdImage(post._id)}/>
       </div>
       <div className="clearfix"></div>
       <Label>{post.name}</Label>
     </Col>
+  });
+}
+tabRowsListCat(){
+  return $this.state.listCatProduct.map(function(post){
+      
+      if(post._id==$this.state.parent_id){
+        return <option value={post._id} selected>
+        { post.name }
+        </option>
+      }else{
+        return <option value={post._id}>
+        { post.name }
+        </option>
+      } 
+      
   });
 }
 render() {
@@ -149,6 +174,12 @@ render() {
                 <div className="form-group">
                   <Label htmlFor="name"><strong>Tên danh mục</strong></Label>
                   <Input type="text" onChange={this.changeName} id="name" placeholder="Tên danh mục" required />
+                </div>
+                <div className="form-group">
+                  <Label htmlFor="parent_id">Danh mục cha</Label>
+                  <select className="form-control" name="parent_id" onChange={this.changeParentId}>
+                    {this.tabRowsListCat()}
+                  </select>
                 </div>
                 <div className="form-group">
                     <Label htmlFor="description">Ảnh đại diện</Label>

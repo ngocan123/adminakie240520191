@@ -38,9 +38,9 @@ class Create extends Component {
         phone: '',
         website: '',
         email: '',
+        zalo: '',
         facebook: '',
         gplus: '',
-        website: '',
         gallerys: [],
         lang: 'vi',
         slogan: '',
@@ -74,18 +74,90 @@ class Create extends Component {
     });
   }
   //setup send data to serve
-  changePrice(e){
-    $this.setState({ price : e.target.value });
-  }
   changeName(e){
     $this.setState({ name : e.target.value });
   }
-
-  changeDescription(e){
-      $this.setState({ description : e.target.value });
+  changeSlogan(e){
+    $this.setState({
+      slogan: e.target.value
+    });
+  }
+  changeEmail(e){
+    $this.setState({
+      email: e.target.value
+    });
+  }
+  changePhone(e){
+    $this.setState({
+      phone: e.target.value
+    });
+  }
+  changeHotline(e){
+    $this.setState({
+      hotline: e.target.value
+    });
+  }
+  changeAddress(e){
+    $this.setState({
+      address: e.target.value
+    });
+  }
+  changeTitle_seo(e){
+    $this.setState({
+      title_seo: e.target.value
+    });
+  }
+  changeDescription_seo(e){
+    $this.setState({
+      description_seo: e.target.value
+    });
+  }
+  changeKeyword_seo(e){
+    $this.setState({
+      keyword_seo: e.target.value
+    });
+  }
+  changeLogo(e){
+    $this.setState({
+      logo: e.target.value
+    });
+  }
+  changeFavicon(e){
+    $this.setState({
+      favicon: e.target.value
+    });
+  }
+  changeWebsite(e){
+    $this.setState({
+      website: e.target.value
+    })
+  }
+  changeFacebook(e){
+    $this.setState({
+      facebook: e.target.value
+    })
+  }
+  changeZalo(e){
+    $this.setState({
+      zalo: e.target.value
+    })
+  }
+  changeLinken(e){
+    $this.setState({
+      linken: e.target.value
+    })
+  }
+  changeTwitcher(e){
+    $this.setState({
+      twitcher: e.target.value
+    })
+  }
+  changeGplus(e){
+    $this.setState({
+      gplus: e.target.value
+    })
   }
   componentDidMount(){
-    console.log($this.props.match.params.lang);
     this.getItemPost();
     this.getAllImage();
   }
@@ -94,7 +166,6 @@ class Create extends Component {
         lang: $this.props.match.params.lang
     });
     axioApi.get('/api/setting/show/'+$this.props.match.params.lang).then((res) => {
-      //console.log(res.data);
       $this.setState({
         lang: res.data.lang,
         name : res.data.name,
@@ -113,21 +184,35 @@ class Create extends Component {
         description_seo : res.data.description_seo,
         keyword_seo : res.data.keyword_seo,
       });
+      if(res.data.logo){
+        $this.setState({
+          logoNumber: res.data.logo,
+          logoPath: res.data.logo.path
+        })
+      }
+      if(res.data.favicon){
+        $this.setState({
+          faviconNumber: res.data.favicon,
+          faviconPath: res.data.favicon.path
+        })
+      }
     });
   }
 
   savePost(){
     const postdata = {
         lang: $this.props.match.params.lang,
+        slogan: $this.state.slogan,
         name : $this.state.name,
         namecompany : $this.state.namecompany,
         address : $this.state.address,
-        logo : $this.state.logo,
-        favicon : $this.state.favicon,
+        logo : $this.state.logoNumber,
+        favicon : $this.state.faviconNumber,
         hotline : $this.state.hotline,
         phone : $this.state.phone,
         email : $this.state.email,
         facebook : $this.state.facebook,
+        zalo: $this.state.zalo,
         gplus : $this.state.gplus,
         website : $this.state.website,
         title_seo : $this.state.title_seo,
@@ -136,7 +221,8 @@ class Create extends Component {
         //author : $this.state.author,
     }
     axioApi.post('/api/setting/update/'+$this.props.match.params.lang, postdata).then((res) => {
-      console.log(res);
+      //console.log(res);
+      window.location.reload();
       //$this.props.history.push('/setting/'+res.data.lang);
     });
   }
@@ -188,15 +274,14 @@ logoPath(){
   }
 }
 faviconNumbers(){
-  
-  if($this.state.logoNumber!=''){
-    return <input name='logo' className="hidden" value={$this.state.faviconNumber}/>;
+  if($this.state.faviconNumber!=''){
+    return <input name='favicon' className="hidden" value={$this.state.faviconNumber}/>;
   }else{
     return '';
   }
 }
 faviconPath(){
-  if($this.state.logoPath!=''){
+  if($this.state.faviconPath!=''){
     return <img src={"http://localhost:3008/"+$this.state.faviconPath}/>;
   }else{
     return '';
@@ -223,19 +308,7 @@ onChangeHandler = event =>{
   )
   axioApi.post('/api/gallery/store', formData,{}).then((res) => {
     this.showAllImage();
-  });
-  //console.log(event.target.files[0]);
-  // this.setState({
-  //   selectedFile: event.target.files[0],
-  //   loaded: 0,
-  // });
-}
-saveGallery(){
-  console.log(this.state.selectedFile)
-  // axioApi.post('/api/gallery/store', formData).then((res) => {
-  //   console.log(res);
-  //   this.showAllImage();
-  // });
+  })
 }
 render() {
     return (
@@ -285,7 +358,7 @@ render() {
                         </div>
                         <div className="form-group">
                             <Label htmlFor="slogan"><strong>Slogan</strong></Label>
-                            <Input type="text" value={this.state.slogan} onChange={this.changeSlogan} name="slogan" id="slogan"
+                            <Input type="text" value={$this.state.slogan} onChange={this.changeSlogan} name="slogan" id="slogan"
                                 placeholder="Slogan"/>
                         </div>
                         <div className="form-group">
@@ -315,16 +388,16 @@ render() {
                         <hr></hr>
                         <div className="form-group">
                             <Label htmlFor="title_seo"><strong>Tiêu đề seo</strong></Label>
-                            <Input type="text" value={this.state.title_seo} onChange={this.changeName} id="title_seo" placeholder="Tiêu đề seo" />
+                            <Input type="text" value={this.state.title_seo} onChange={this.changeTitle_seo} id="title_seo" placeholder="Tiêu đề seo" />
                         </div>
                         <div className="form-group">
                         <Label htmlFor="description_seo"><strong>Mô tả seo</strong></Label>
-                        <Input type="textarea" value={this.state.description_seo} onChange={this.changeDescription} name="description_seo" id="description_seo"
+                        <Input type="textarea" value={this.state.description_seo} onChange={this.changeDescription_seo} name="description_seo" id="description_seo"
                                 placeholder="Mô tả seo" rows="3"/>
                         </div>
                         <div className="form-group">
                         <Label htmlFor="description_seo"><strong>Từ khóa seo</strong></Label>
-                        <Input type="textarea" value={this.state.keyword_seo} onChange={this.changeDescription} name="keyword_seo" id="keyword_seo"
+                        <Input type="textarea" value={this.state.keyword_seo} onChange={this.changeKeyword_seo} name="keyword_seo" id="keyword_seo"
                                 placeholder="Từ khóa seo" rows="3"/>
                         </div>
                     </Col>

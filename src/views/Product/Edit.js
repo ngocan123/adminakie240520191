@@ -12,6 +12,7 @@ import {
 } from 'reactstrap';
 //import ManagerGallery from './../Gallery/ManagerGallery';
 import axioApi from './../../config/axioConfig';
+import configUrl from './../../config/configUrl';
 import CreatableSelect from 'react-select/lib/Creatable';
 import classnames from 'classnames';
 let $this;
@@ -34,7 +35,9 @@ class Create extends Component {
         gallerys: [],
         imageNumber: '',
         imagePath: '',
-        price: '',
+        listCatProduct: [],
+        price: 0,
+        price_old: 0,
         _id: '',
         tags: '',
         title_seo: '',
@@ -69,10 +72,15 @@ class Create extends Component {
 changePrice(e){
   $this.setState({ price : e.target.value });
 }
+changePriceOld(e){
+  $this.setState({ price_old: e.target.value });
+}
 changeName(e){
   $this.setState({ name : e.target.value });
 }
-
+changeCategoryId(e) {
+  $this.setState({ category_id : e.target.value });
+}
 changeDescription(e){
     $this.setState({ description : e.target.value });
 }
@@ -87,6 +95,7 @@ componentDidMount(){
         });
     });
     this.getAllImage();
+    this.getListCat();
 }
 onChangeHandler = event=>{
   this.setState({
@@ -102,31 +111,60 @@ getItemPost(){
       const tags = res.data.tags.map(function(obj, i){
           return {value: obj._id, label:obj.label};
       });
-      //console.log(tags);
+      if(res.data.category_id){
+        $this.setState({
+          category_id: res.data.category_id._id
+        });
+      }
       $this.setState({
           _id: res.data._id,
           name: res.data.name,
           description: res.data.description,
           price: res.data.price,
+          price_old: res.data.price_old,
           imageNumber: res.data.imageNumber,
           imagePath: res.data.imagePath,
           tags:tags,
       });
   });
 }
+//Lấy danh sách danh mục sản phẩm
+getListCat(){
+  axioApi.get('/api/catproduct/getAll').then((res) => {
+    $this.setState({
+      listCatProduct: res.data
+    })
+  });
+}
+tabRowsListCat(){
+  return $this.state.listCatProduct.map(function(post){
+    if(post._id==$this.state.category_id){
+      return <option value={post._id} data-parent={$this.state.category_id} selected>
+      { post.name }
+      </option>
+    }else{
+      return <option value={post._id} data-parent={$this.state.category_id}>
+      { post.name }
+      </option>
+    }
+  });
+}
+//Kết thúc lấy danh sách sản phẩm
 savePost(){
   const postdata = {
       _id: $this.state._id,
-      name : $this.state.name,
-      price : $this.state.price,
-      imageNumber : $this.state.imageNumber,
-      imagePath : $this.state.imagePath,
-      description : $this.state.description,
-      tags : $this.state.tags,
+      name: $this.state.name,
+      category_id: $this.state.category_id,
+      price: $this.state.price,
+      price_old: parseInt($this.state.price_old),
+      imageNumber: $this.state.imageNumber,
+      imagePath: $this.state.imagePath,
+      description: $this.state.description,
+      tags: $this.state.tags,
       //author : $this.state.author,
   }
+  console.log(postdata);
   axioApi.post('/api/product/saveProductAndTagAsync', postdata).then((res) => {
-    //console.log(res.data)
     $this.props.history.push('/product/index');
   });
 }
@@ -155,7 +193,7 @@ imageNumbers(){
 }
 imagePath(){
   if($this.state.imagePath!=''){
-    return <img src={"http://localhost:3008/"+$this.state.imagePath}/>;
+    return <img src={configUrl.baseURL+$this.state.imagePath}/>;
   }else{
     return '';
   }
@@ -164,7 +202,7 @@ showAllImage(){
   return $this.state.gallerys.map(function(post, i){
       return <Col xs="6" sm="3" className="text-center flol">
       <div color="divItemImage warning">
-        <img className="img100" src={'http://localhost:3008'+post.path} data-path={post.path} data-id={post._id}
+        <img className="img100" src={configUrl.baseURL+post.path} data-path={post.path} data-id={post._id}
          onClick={(e) => $this.getIdImage(post._id)}/>
       </div>
       <div className="clearfix"></div>
@@ -190,17 +228,25 @@ render() {
                   className={classnames({ active: this.state.activeTab === '1' })}
                   onClick={() => { this.toggle('1'); }}
                 >
-                  Chung
+                  <strong>Chung</strong>
                 </NavLink>
               </NavItem>
-                <NavItem>
-                  <NavLink
-                    className={classnames({ active: this.state.activeTab === '2' })}
-                    onClick={() => { this.toggle('2'); }}
-                  >
-                    Thuộc tính
-                  </NavLink>
-                </NavItem>
+              <NavItem>
+                <NavLink
+                  className={classnames({ active: this.state.activeTab === '2' })}
+                  onClick={() => { this.toggle('2'); }}
+                >
+                  <strong>Dữ liệu</strong>
+                </NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink
+                  className={classnames({ active: this.state.activeTab === '6' })}
+                  onClick={() => { this.toggle('6'); }}
+                >
+                  <strong>Ảnh</strong>
+                </NavLink>
+              </NavItem>
               </Nav>
               <TabContent activeTab={this.state.activeTab}>
                 <TabPane tabId="1">
@@ -245,21 +291,42 @@ render() {
                 </TabPane>
                 <TabPane tabId="2">
                   <Row>
-                    <Col sm="12">
+                    <Col sm="6">
                       <div className="form-group">
                         <Label htmlFor="price"><strong>Giá sản phẩm</strong></Label>
                         <Input type="number" value={this.state.price} onChange={this.changePrice} id="price" placeholder="Giá sản phẩm" />
                       </div>
+                    </Col>
+                    <Col sm="6">
                       <div className="form-group">
-                          <Label htmlFor="image"><strong>Ảnh đại diện</strong></Label>
-                          <div>
-                            <Button color="primary" onClick={this.togglePrimary} className="mr-1">Chọn ảnh</Button>
-                            <div className="showImage">{this.imagePath()}{this.imageNumbers()}
-                            </div>
-                          </div>
+                        <Label htmlFor="price_old"><strong>Giá gốc</strong></Label>
+                        <Input type="number" value={this.state.price_old} onChange={this.changePriceOld} id="price_old" placeholder="Giá gốc" />
+                      </div>
+                    </Col>
+                    <Col sm="6">
+                      <div className="form-group">
+                        <Label htmlFor="parent_id"><strong>Danh mục sản phẩm</strong></Label>
+                        <select className="form-control" name="parent_id" onChange={this.changeCategoryId}>
+                          <option value="">Danh mục sản phẩm</option>
+                          {this.tabRowsListCat()}
+                        </select>
                       </div>
                     </Col>
                   </Row>
+                </TabPane>
+                <TabPane tabId="6">
+                <Row>
+                  <Col sm="6">
+                    <div className="form-group">
+                        <Label htmlFor="image"><strong>Ảnh đại diện</strong></Label>
+                        <div>
+                          <Button color="primary" onClick={this.togglePrimary} className="mr-1">Chọn ảnh</Button>
+                          <div className="showImage">{this.imagePath()}{this.imageNumbers()}
+                          </div>
+                        </div>
+                    </div>
+                  </Col>
+                </Row>
                 </TabPane>
               </TabContent>
             </CardBody>
@@ -275,7 +342,6 @@ render() {
             Tải ảnh
             <input type="file" name="file" onChange={this.onChangeHandler}/>
           </button>
-          
         </ModalHeader>
         <ModalBody>
          {this.showAllImage()}

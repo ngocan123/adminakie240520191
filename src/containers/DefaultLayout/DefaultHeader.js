@@ -14,6 +14,12 @@ const propTypes = {
 const defaultProps = {};
 
 class DefaultHeader extends Component {
+  logout(){
+    localStorage.removeItem('token');
+    localStorage.removeItem('user_id');
+    window.location.reload();
+  }
+
   render() {
 
     // eslint-disable-next-line
@@ -33,10 +39,13 @@ class DefaultHeader extends Component {
             <NavLink to="/dashboard" className="nav-link" >Dashboard</NavLink>
           </NavItem>
           <NavItem className="px-3">
-            <Link to="/users" className="nav-link">Users</Link>
+            <Link to="/users" className="nav-link">Người dùng</Link>
           </NavItem>
           <NavItem className="px-3">
-            <NavLink to="#" className="nav-link">Settings</NavLink>
+            <NavLink to="#" className="nav-link">Cấu hình chung</NavLink>
+          </NavItem>
+          <NavItem className="px-3">
+            <button className="btn btn-sm btn-danger" onClick={this.logout}>Đăng xuất</button>
           </NavItem>
         </Nav>
         <Nav className="ml-auto" navbar>

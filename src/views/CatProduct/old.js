@@ -9,8 +9,10 @@ import {
   Row,
   Button, Modal, ModalBody, ModalFooter, ModalHeader,
 } from 'reactstrap';
-import axioApi from './../../config/axioConfig'
-import configUrl from './../../config/configUrl'
+import axioApi from './../../config/axioConfig';
+import configUrl from './../../config/configUrl';
+import qs from 'qs';
+import CreatableSelect from 'react-select/lib/Creatable';
 
 let $this;
 class Create extends Component {
@@ -28,12 +30,14 @@ class Create extends Component {
         modal: false,
         name : '', description : '', tags : [], alltags : [], 
         author : '', imagePath: '', selectedFile: null,
-        _id: null,
+        listCatProduct: [],
         gallerys: [],
-        parent_id: 0,
+        parent_id: '',
+        imageNumber: '',
         title_seo: '',
         description_seo: '',
         keyword_seo: '',
+        _id: ''
       };
       $this = this;
   }
@@ -56,11 +60,11 @@ class Create extends Component {
 changeName(e){
     $this.setState({ name : e.target.value });
 }
-changeDescription(e){
+changeDescription(e) {
   $this.setState({ description : e.target.value });
 }
-changeParentId = (selectedparentId) => {
-    $this.setState({ parent_id : selectedparentId });
+changeParentId(e) {
+    $this.setState({ parent_id : e.target.value });
 }
 changeTitle_seo(e) {
   $this.setState({ title_seo : e.target.value });
@@ -72,21 +76,16 @@ changeKeyword_seo(e) {
   $this.setState({ keyword_seo : e.target.value });
 }
 componentDidMount(){
-  axioApi.get('/api/supplier/show/'+$this.props.match.params.id).then((res) => {
-      $this.setState({
-          _id: res.data._id,
-          name: res.data.name,
-          description: res.data.description,
-          parent_id: res.data.parent_id,
-          imagePath: res.data.imagePath,
-          imageNumber: res.data.imageNumber,
-          title_seo: res.data.title_seo,
-          description_seo: res.data.description_seo,
-          keyword_seo: res.data.keyword_seo,
-      });
-  });
   this.showAllImage();
   this.getAllImage();
+  this.getListCat();
+}
+getListCat(){
+  axioApi.get('/api/catproduct/getAll').then((res) => {
+    $this.setState({
+      listCatProduct: res.data
+    })
+  });
 }
 savePost(){
   var postdata = {
@@ -99,8 +98,10 @@ savePost(){
     description_seo: $this.state.description_seo,
     keyword_seo: $this.state.keyword_seo,
   }
-  axioApi.post('/api/supplier/update/'+$this.state._id,postdata).then((res) => {
-    $this.props.history.push('/supplier/index');
+  //console.log(postdata);
+  axioApi.post('/api/catproduct/store', postdata).then((res) => {
+    console.log(res.data);
+    $this.props.history.push('/catproduct/index');
   });
 }
 //upload image
@@ -113,7 +114,7 @@ getAllImage(){
 }
 getIdImage(id){
   axioApi.get('/api/gallery/show/'+id).then((res) => {
-    console.log(res.data);
+    //console.log(res.data);
     $this.setState({
       imageNumber: res.data._id,
       imagePath: res.data.path
@@ -146,6 +147,21 @@ showAllImage(){
     </Col>
   });
 }
+tabRowsListCat(){
+  return $this.state.listCatProduct.map(function(post){
+      
+      if(post._id==$this.state.parent_id){
+        return <option value={post._id} selected>
+        { post.name }
+        </option>
+      }else{
+        return <option value={post._id}>
+        { post.name }
+        </option>
+      } 
+      
+  });
+}
 render() {
     return (
       <div className="animated fadeIn">
@@ -153,16 +169,22 @@ render() {
           <Col xs="12" sm="12">
             <Card>
               <CardHeader>
-                <strong>Sửa nhà cung cấp</strong>
+                <strong>Thêm danh mục</strong>
                 <button onClick={this.savePost} className="btn btn-sm btn-primary flor">Cập nhật</button>
               </CardHeader>
               <CardBody>
                 <div className="form-group">
-                  <Label htmlFor="name"><strong>Tên nhà cung cấp</strong></Label>
-                  <Input type="text" value={$this.state.name} onChange={this.changeName} id="name" placeholder="Tên danh mục" required />
+                  <Label htmlFor="name"><strong>Tên danh mục</strong></Label>
+                  <Input type="text" onChange={this.changeName} id="name" placeholder="Tên danh mục" required />
                 </div>
                 <div className="form-group">
-                    <Label htmlFor="image"><strong>Ảnh đại diện</strong></Label>
+                  <Label htmlFor="parent_id">Danh mục cha</Label>
+                  <select className="form-control" name="parent_id" onChange={this.changeParentId}>
+                    {this.tabRowsListCat()}
+                  </select>
+                </div>
+                <div className="form-group">
+                    <Label htmlFor="description">Ảnh đại diện</Label>
                     <div>
                       <Button color="primary" onClick={this.togglePrimary} className="mr-1">Chọn ảnh</Button>
                       <div className="showImage">{this.imagePath()}{this.imageNumbers()}
@@ -171,22 +193,22 @@ render() {
                 </div>
                 <div className="form-group">
                   <Label htmlFor="description"><strong>Mô tả</strong></Label>
-                  <Input type="textarea" value={$this.state.description} onChange={this.changeDescription} name="description" id="description"
+                  <Input type="textarea" onChange={this.changeDescription} name="description" id="description"
                         placeholder="Mô tả" rows="3"/>
                 </div>
                 <hr></hr>
                 <div className="form-group">
                   <Label htmlFor="title_seo"><strong>Tiêu đề seo</strong></Label>
-                  <Input type="text" value={$this.state.title_seo} onChange={this.changeTitle_seo} id="title_seo" placeholder="Tiêu đề seo" />
+                  <Input type="text" onChange={this.changeTitle_seo} id="title_seo" placeholder="Tiêu đề seo" />
                 </div>
                 <div className="form-group">
                   <Label htmlFor="description_seo"><strong>Mô tả seo</strong></Label>
-                  <Input type="textarea" value={$this.state.description_seo} onChange={this.changeDescription_seo} name="description_seo" id="description_seo"
+                  <Input type="textarea" onChange={this.changeDescription_seo} name="description_seo" id="description_seo"
                         placeholder="Mô tả seo" rows="3"/>
                 </div>
                 <div className="form-group">
-                  <Label htmlFor="keyword_seo"><strong>Từ khóa seo</strong></Label>
-                  <Input type="textarea" value={$this.state.keyword_seo} onChange={this.changeKeyword_seo} name="keyword_seo" id="keyword_seo"
+                  <Label htmlFor="description_seo"><strong>Từ khóa seo</strong></Label>
+                  <Input type="textarea" onChange={this.changeKeyword_seo} name="keyword_seo" id="keyword_seo"
                         placeholder="Từ khóa seo" rows="3"/>
                 </div>
               </CardBody>
@@ -194,23 +216,24 @@ render() {
           </Col>
         </Row>
 
+
         <Modal isOpen={this.state.primary} toggle={this.togglePrimary}
-              className={'modal-primary modal-lg ' + this.props.className}>
-        <ModalHeader toggle={this.togglePrimary}>
-          <button className="buttonUploadImage">
-            Tải ảnh
-            <input type="file" name="file" onChange={this.onChangeHandler}/>
-          </button>
-          
-        </ModalHeader>
-        <ModalBody>
-         {this.showAllImage()}
-        </ModalBody>
-        <ModalFooter>
-          <Button color="primary" onClick={this.togglePrimary}>Cập nhật</Button>
-          <Button color="secondary" onClick={this.togglePrimary}>Bỏ qua</Button>
-        </ModalFooter>
-      </Modal>
+                className={'modal-primary modal-lg ' + this.props.className}>
+          <ModalHeader toggle={this.togglePrimary}>
+            <button className="buttonUploadImage">
+              Tải ảnh
+              <input type="file" name="file" onChange={this.onChangeHandler}/>
+            </button>
+            
+          </ModalHeader>
+          <ModalBody>
+           {this.showAllImage()}
+          </ModalBody>
+          <ModalFooter>
+            <Button color="primary" onClick={this.togglePrimary}>Cập nhật</Button>
+            <Button color="secondary" onClick={this.togglePrimary}>Bỏ qua</Button>
+          </ModalFooter>
+        </Modal>
       </div>
     );
   }

@@ -1,41 +1,83 @@
-import React, { Component } from 'react';
-import { Badge, Card, CardBody, CardHeader, Col, Pagination, PaginationItem, PaginationLink, Row, Table } from 'reactstrap';
-
-import { Link } from 'react-router-dom';
+import React, { Component } from 'react'
+import { Card, CardBody, CardHeader, Col, Pagination, PaginationItem, PaginationLink, Row, Table } from 'reactstrap'
+import axioApi from './../../config/axioConfig'
+import configUrl from './../../config/configUrl'
+import { Link } from 'react-router-dom'
+import qs from 'qs'
 
 let $this;
-
-class IndexAdmin extends Component {
-
-  constructor(props){
-  super(props);
+class Index extends Component {
+    constructor(props){
+		  super(props);
+      this.state = {'posts' : [], author : '', 'page': 1, 'current': 1, 'pages': 1,}
       $this = this; 
-  }
-	// componentDidMount(){
-  //     this.props.getPosts($this.props.loginuser);  // redux_step1 calling to actions
-  // }    
-  // async deletePost(id){
-  //     const returndata = await $this.props.deletePost(id);
-  //     if(returndata.data.message == "deleted"){
-  //         $this.props.getPosts($this.props.loginuser);
-  //     }else{
-  //         alert("something error"); console.log(returndata);
-  //     }
-  // }
-  tabRows(){
-      return $this.props.posts.map(function(post, i){
-          return <tr key={i}>
-                  <td>{post.title}</td>
-                  <td>{post.description}</td>
-                  <td>{(post.author)? post.author.name : ''}</td> 
-                  <td>
-                      <Link to={"/editPost/"+post._id}><button>Edit</button></Link>                    
-                      <button onClick={() => $this.deletePost(post._id)}>Delete</button></td>                   
-                  </tr>;
+    }
+    componentDidMount(){
+      this.getDats();
+    }
+    
+    getDats(){
+        const filter = {
+          keyword: $this.state.keyword,
+          page: $this.state.page
+        }
+        axioApi.get('/api/admin/list').then((res) => {
+          console.log(res.data);
+          $this.setState({
+            posts: res.data,
+            current: res.data.current,
+            pages: res.data.pages,
+          })
+          this.showPaginate();
+        });
+    }
+    deletePost(id){
+      axioApi.post('/api/admin/remove', {_id : id}).then((res) => {
+          $this.getDats()
       });
-  }
-
-
+    }
+    tabRows(){
+      return $this.state.posts.map(function(post){
+          return <tr>
+          <td className="text-center wtd100"><img alt={post.imagePath} className="w8" src={configUrl.baseURL+ post.imagePath}/></td>
+          <td>{post.name}</td>
+          <td>{post.email}</td>
+          <td>{post.phone}</td>
+          <td className="text-center" style={{width:'120px'}}>
+              <Link to={"/admin/edit/"+post._id}>
+                  <button className="btn btn-sm btn-warning mar-3"><i className="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+              </Link>
+              <button className="btn btn-sm btn-danger mar-3" onClick={() => $this.deletePost(post._id)}>
+                  <i className="fa fa-trash" aria-hidden="true"></i>
+              </button>
+          </td>                   
+        </tr>
+      });
+    }
+    changeKeyword(e){
+      $this.setState({
+        keyword : e.target.value
+      })
+      setTimeout(function(){
+        $this.getDats()
+      }, 500)
+    }
+    activePagination(page){
+      $this.setState({
+        page: page
+      });
+      this.getDats();
+    }
+    //show paginate
+    showPaginate(){
+      let obj = [];
+      for (let index = 1; index <= $this.state.pages; index++) {
+        obj.push({p:index});
+      }
+      return obj.map((post, index) => 
+        <PaginationItem><PaginationLink onClick={() => $this.activePagination(post.p)} tag="button" data-id={parseInt(index)+parseInt(1)}>{parseInt(index)+parseInt(1)}</PaginationLink></PaginationItem>
+      );
+    }
   render() {
     return (
       <div className="animated fadeIn">
@@ -44,70 +86,32 @@ class IndexAdmin extends Component {
             <Card>
               <CardHeader>
                 <i className="fa fa-align-justify"></i> Danh sách tài khoản
+                <Link to="/admin/create"><button className="btn btn-sm btn-success flor"><i className="fa fa-plus" aria-hidden="true"></i> Thêm</button></Link>
               </CardHeader>
+              <div className="h15"></div>
+              <div>
+                <div className="col-sm-3 flol">
+                    <input type="text" onBlur={this.changeKeyword} className="form-control" placeholder="Họ Tên, Email, Điện thoại"/>
+                </div>
+              </div>
               <CardBody>
                 <Table hover bordered striped responsive size="sm">
                   <thead>
                   <tr>
-                    <th>Username</th>
-                    <th>Date registered</th>
-                    <th>Role</th>
-                    <th>Status</th>
+                    <th>Ảnh</th>
+                    <th>Họ Tên</th>
+                    <th>Email</th>
+                    <th>Điện thoại</th>
+                    <th>Hành động</th>
                   </tr>
                   </thead>
                   <tbody>
-                  <tr>
-                    <td>Vishnu Serghei</td>
-                    <td>2012/01/01</td>
-                    <td>Member</td>
-                    <td>
-                      <Badge color="success">Active</Badge>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Zbyněk Phoibos</td>
-                    <td>2012/02/01</td>
-                    <td>Staff</td>
-                    <td>
-                      <Badge color="danger">Banned</Badge>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Einar Randall</td>
-                    <td>2012/02/01</td>
-                    <td>Admin</td>
-                    <td>
-                      <Badge color="secondary">Inactive</Badge>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Félix Troels</td>
-                    <td>2012/03/01</td>
-                    <td>Member</td>
-                    <td>
-                      <Badge color="warning">Pending</Badge>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Aulus Agmundr</td>
-                    <td>2012/01/21</td>
-                    <td>Staff</td>
-                    <td>
-                      <Badge color="success">Active</Badge>
-                    </td>
-                  </tr>
+                    {this.tabRows()}
                   </tbody>
                 </Table>
                 <nav>
                   <Pagination>
-                    <PaginationItem><PaginationLink previous tag="button">Prev</PaginationLink></PaginationItem>
-                    <PaginationItem active>
-                      <PaginationLink tag="button">1</PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem><PaginationLink tag="button">2</PaginationLink></PaginationItem>
-                    <PaginationItem><PaginationLink tag="button">3</PaginationLink></PaginationItem>
-                    <PaginationItem><PaginationLink tag="button">4</PaginationLink></PaginationItem>
-                    <PaginationItem><PaginationLink next tag="button">Next</PaginationLink></PaginationItem>
+                    {this.showPaginate()}
                   </Pagination>
                 </nav>
               </CardBody>
@@ -118,4 +122,4 @@ class IndexAdmin extends Component {
     );
   }
 }
-export default IndexAdmin;
+export default Index;

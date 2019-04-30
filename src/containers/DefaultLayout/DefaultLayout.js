@@ -1,6 +1,8 @@
 import React, { Component, Suspense } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { Container } from 'reactstrap';
+import axioApi from './../../config/axioConfig'
+import configUrl from './../../config/configUrl'
 import '../../index.css';
 import {
   AppAside,
@@ -22,14 +24,31 @@ import routes from '../../routes';
 const DefaultAside = React.lazy(() => import('./DefaultAside'));
 const DefaultFooter = React.lazy(() => import('./DefaultFooter'));
 const DefaultHeader = React.lazy(() => import('./DefaultHeader'));
-//let token = localStorage.getItem('token');
+
+let token = localStorage.getItem('token');
+let $this
 class DefaultLayout extends Component {
-
+  
   loading = () => <div className="animated fadeIn pt-1 text-center">Loading...</div>
-
+  constructor(props){
+    super(props);
+    this.state = {'posts' : [], author : '', 'page': 1, 'current': 1, 'pages': 1}
+    $this = this; 
+  }
   signOut(e) {
     e.preventDefault()
     this.props.history.push('/login')
+  }
+  componentDidMount(){
+    setTimeout(function(){
+      axioApi.get('/api/auth/checkToken').then((res) => {
+        $this.setState({
+            author: res.data.id
+        })
+      }).catch((err) => {
+        $this.props.history.push('/login')
+      })
+    }, 500)
   }
   render() {
     return (

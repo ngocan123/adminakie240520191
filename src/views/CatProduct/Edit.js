@@ -10,6 +10,7 @@ import {
   Button, Modal, ModalBody, ModalFooter, ModalHeader,
 } from 'reactstrap';
 import axioApi from './../../config/axioConfig';
+import configUrl from './../../config/configUrl';
 import qs from 'qs';
 import CreatableSelect from 'react-select/lib/Creatable';
 
@@ -31,7 +32,8 @@ class Create extends Component {
         author : '', imagePath: '', selectedFile: null,
         _id: null,
         gallerys: [],
-        parent_id: 0,
+        listCatProduct: [],
+        parent_id: '',
         title_seo: '',
         description_seo: '',
         keyword_seo: '',
@@ -60,8 +62,8 @@ changeName(e){
 changeDescription(e){
   $this.setState({ description : e.target.value });
 }
-changeParentId = (selectedparentId) => {
-    $this.setState({ parent_id : selectedparentId });
+changeParentId(e) {
+    $this.setState({ parent_id : e.target.value });
 }
 changeTitle_seo(e) {
   $this.setState({ title_seo : e.target.value });
@@ -74,21 +76,51 @@ changeKeyword_seo(e) {
 }
 componentDidMount(){
   axioApi.get('/api/catproduct/show/'+$this.props.match.params.id).then((res) => {
+    if(res.data.parent_id){
       $this.setState({
-          _id: res.data._id,
-          name: res.data.name,
-          description: res.data.description,
-          parent_id: res.data.parent_id,
-          imagePath: res.data.imagePath,
-          imageNumber: res.data.imageNumber,
-          title_seo: res.data.title_seo,
-          description_seo: res.data.description_seo,
-          keyword_seo: res.data.keyword_seo,
+        parent_id: res.data.parent_id._id
       });
+    }else{
+      $this.setState({
+        parent_id: null
+      });
+    }
+    $this.setState({
+        _id: res.data._id,
+        name: res.data.name,
+        description: res.data.description,
+        imagePath: res.data.imagePath,
+        imageNumber: res.data.imageNumber,
+        title_seo: res.data.title_seo,
+        description_seo: res.data.description_seo,
+        keyword_seo: res.data.keyword_seo,
+    });
   });
   this.showAllImage();
   this.getAllImage();
+  this.getListCat();
 }
+getListCat(){
+  axioApi.get('/api/catproduct/getAll').then((res) => {
+    $this.setState({
+      listCatProduct: res.data
+    })
+  });
+}
+tabRowsListCat(){
+  return $this.state.listCatProduct.map(function(post){
+    if(post._id==$this.state.parent_id){
+      return <option value={post._id} data-parent={$this.state.parent_id} selected>
+      { post.name }
+      </option>
+    }else{
+      return <option value={post._id} data-parent={$this.state.parent_id}>
+      { post.name }
+      </option>
+    }
+  });
+}
+
 savePost(){
   var postdata = {
     name: $this.state.name,
@@ -130,7 +162,7 @@ imageNumbers(){
 }
 imagePath(){
   if($this.state.imagePath!=''){
-    return <img src={"http://localhost:3008/"+$this.state.imagePath}/>;
+    return <img src={configUrl.baseURL+$this.state.imagePath}/>;
   }else{
     return '';
   }
@@ -139,12 +171,19 @@ showAllImage(){
   return $this.state.gallerys.map(function(post, i){
       return <Col xs="6" sm="3" className="text-center flol">
       <div color="divItemImage warning">
-        <img className="img100" src={'http://localhost:3008'+post.path} data-path={post.path} data-id={post._id}
+        <img className="img100" src={configUrl.baseURL+post.path} data-path={post.path} data-id={post._id}
          onClick={(e) => $this.getIdImage(post._id)}/>
       </div>
       <div className="clearfix"></div>
       <Label>{post.name}</Label>
     </Col>
+  });
+}
+getListCat(){
+  axioApi.get('/api/catproduct/getAll').then((res) => {
+    $this.setState({
+      listCatProduct: res.data
+    })
   });
 }
 render() {
@@ -161,6 +200,13 @@ render() {
                 <div className="form-group">
                   <Label htmlFor="name"><strong>Tên danh mục</strong></Label>
                   <Input type="text" value={$this.state.name} onChange={this.changeName} id="name" placeholder="Tên danh mục" required />
+                </div>
+                <div className="form-group">
+                  <Label htmlFor="parent_id">Danh mục cha</Label>
+                  <select className="form-control" name="parent_id" onChange={this.changeParentId}>
+                    <option value="">Danh mục cha</option>
+                    {this.tabRowsListCat()}
+                  </select>
                 </div>
                 <div className="form-group">
                     <Label htmlFor="image"><strong>Ảnh đại diện</strong></Label>

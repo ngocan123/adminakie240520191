@@ -1,32 +1,26 @@
-import React, { Component } from 'react';
-import { Card, CardBody, CardHeader, Col, Pagination, PaginationItem, PaginationLink, Row, Table } from 'reactstrap';
-import axioApi from './../../config/axioConfig';
-import { Link } from 'react-router-dom';
-import qs from 'qs';
-
-// const mapStateToProps = state => {
-//     return{
-//         posts : state.postreducer.posts  // redux_step4 getting data from store and connect with view
-//     }
-// }
-let $this;
+import React, { Component } from 'react'
+import { Card, CardBody, CardHeader, Col, Pagination, PaginationItem, PaginationLink, Row, Table } from 'reactstrap'
+import axioApi from './../../config/axioConfig'
+import configUrl from './../../config/configUrl'
+import { Link } from 'react-router-dom'
+import qs from 'qs'
+let $this
 class IndexProduct extends Component {
     constructor(props){
 		  super(props);
-      this.state = {'posts' : [], author : '', 'page': 1, 'current': 1, 'pages': 1,}
+      this.state = {'posts' : [], author : '', 'page': 1, 'current': 1, 'pages': 1}
       $this = this; 
     }
     componentDidMount(){
-      // setTimeout(function(){
-      //   axioApi.get('/auth/checkToken').then((res) => {
-      //       $this.setState({
-      //           author: res.data.id
-      //       });
-      //   }).catch((err) => {
-      //       $this.props.history.push('/login');
-      //   });
-      // }, 1500);
-      
+      setTimeout(function(){
+        axioApi.get('/api/auth/checkToken').then((res) => {
+          $this.setState({
+              author: res.data.id
+          })
+        }).catch((err) => {
+          $this.props.history.push('/login')
+        })
+      }, 1500)
       this.getDats();
       document.addEventListener('scroll',this.trackScrolling)
     }
@@ -35,10 +29,7 @@ class IndexProduct extends Component {
         const filter = {
           keyword: $this.state.keyword,
           page: $this.state.page
-        };
-        // axioApi.get('product/list?'+qs.stringify(filter)).then((res) => {
-        //     $this.setState({ 'posts' : res.data });
-        // });
+        }
         axioApi.get('/api/product/list?'+qs.stringify(filter)).then((res) => {
           //console.log(res.data)
           $this.setState({
@@ -52,7 +43,7 @@ class IndexProduct extends Component {
     }
     deletePost(id){
         axioApi.post('/api/product/remove', {_id : id}).then((res) => {
-            $this.getDats()
+            this.getDats();
         });
     }
     tabRows(){
@@ -141,16 +132,16 @@ class Postlist extends Component{
   }
   render(){
     return <tr>
-        <td className="text-center wtd100"><img className="w8" src={'http://localhost:3008'+ this.props.post.imagePath}/></td>
+        <td className="text-center wtd100"><img className="w8" src={configUrl.baseURL+ this.props.post.imagePath}/></td>
         <td>{this.props.post.name}</td>
-        <td>{this.props.post.description}</td>
+        <td>{(this.props.post.category_id)? this.props.post.category_id.name : ''}</td>
         <td>{(this.props.post.author)? this.props.post.author.email : ''}</td>
-        <td className="text-center">
+        <td className="text-center" style={{width: "120px"}}>
             <Link to={"/product/edit/"+this.props.post._id}>
-                <button className="btn btn-sm btn-warning mar-3"><i className="fa fa-pencil-square-o" aria-hidden="true"></i> Sửa</button>
+                <button className="btn btn-sm btn-warning mar-3"><i className="fa fa-pencil-square-o" aria-hidden="true"></i></button>
             </Link>
             <button className="btn btn-sm btn-danger mar-3" onClick={() => $this.deletePost(this.props.post._id)}>
-                <i className="fa fa-trash" aria-hidden="true"></i> Xóa
+                <i className="fa fa-trash" aria-hidden="true"></i>
             </button>
         </td>                   
       </tr>; 

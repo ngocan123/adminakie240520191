@@ -68,7 +68,7 @@ const routes = [
   //====== Quản lý tài khoản
   { path: '/admin/index', name: 'Danh sách tài khoản', component: IndexAdmin },
   { path: '/admin/create', name: 'Thêm tài khoản', component: CreateAdmin },
-  { path: '/admin/edit', name: 'Sửa tài khoản', component: EditAdmin },
+  { path: '/admin/edit/:id', name: 'Sửa tài khoản', component: EditAdmin },
   // ===== Kết thúc quản lý tài khoản
   //====== Quản lý sản phẩm
   { path: '/product/index', name: 'Danh sách sản phẩm', component: IndexProduct },

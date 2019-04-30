@@ -25,29 +25,26 @@ class Login extends Component {
 	saveRegister(e){
 		e.preventDefault();
     const user = {email:$this.state.email, password:$this.state.password}
-    console.log(user);
-		axioApi.post("auth/login", qs.stringify(user)).then((res) => {
-            // here we go// success login
-            if(res.data.auth === true){
-                // store in localStorage
-                localStorage.setItem('token', res.data.token);
-                // set axios header
-                axioApi.defaults.headers.common['x-access-token'] = res.data.token;
-                $this.props.history.push({
-                    pathname: '/',
-                    //search: '?query=abc',
-                    redirectfrom: 'dashboard'
-                })
-                  
-            }
-			
-		}).catch((err) => {
-            alert("Username password mismatch");
-            console.log(err);
-        });
-    }
-
-
+    //console.log(user);
+		axioApi.post("api/auth/login", qs.stringify(user)).then((res) => {
+      // here we go// success login
+      if(res.data.auth === true){
+        // store in localStorage
+        localStorage.setItem('token', res.data.token);
+        // set axios header
+        axioApi.defaults.headers.common['x-access-token'] = res.data.token;
+        $this.props.history.push({
+            pathname: '/',
+            //search: '?query=abc',
+            redirectfrom: 'dashboard'
+        })
+      }
+    }).catch((err) => {
+        alert("Tài khoản hoặc mật khẩu không đúng!");
+        console.log(err);
+    });
+  };
+    
   render() {
     return (
       <div className="app flex-row align-items-center">

@@ -12,6 +12,7 @@ import {
 } from 'reactstrap';
 //import ManagerGallery from './../Gallery/ManagerGallery';
 import axioApi from './../../config/axioConfig';
+import configUrl from './../../config/configUrl';
 import CreatableSelect from 'react-select/lib/Creatable';
 import classnames from 'classnames';
 let $this;
@@ -31,6 +32,8 @@ class Create extends Component {
         activeTab: '1',
         name : '', description : '', tags : [], alltags : [], author : '',
         selectedFile: null,
+        listCatProduct: [],
+        category_id: '',
         gallerys: [],
         imageNumber: '',
         imagePath: '',
@@ -62,97 +65,120 @@ class Create extends Component {
     });
 
   }
-
   //setup send data to serve
-changePrice(e){
-  $this.setState({ price : e.target.value });
-}
-changeName(e){
-  $this.setState({ name : e.target.value });
-}
-
-changeDescription(e){
-    $this.setState({ description : e.target.value });
-}
-tagsSelectChange = (selectedtag) => {
-    $this.setState({ tags : selectedtag });
-}
-componentDidMount(){
-
-    axioApi.get('/api/product/getAllTags').then((res) => {
-        $this.setState({
-            alltags : res.data
-        });
-    });
-    this.getAllImage();
-}
-onChangeHandler = event=>{
-  this.setState({
-    selectedFile: event.target.files[0],
-    loaded: 0,
-  })
-}
-test(){
-  console.log('test managergallery');
-}
-savePost(){
-  const postdata = {
-      name : $this.state.name,
-      price : $this.state.price,
-      imageNumber : $this.state.imageNumber,
-      imagePath : $this.state.imagePath,
-      description : $this.state.description,
-      tags : $this.state.tags,
-      //author : $this.state.author,
+  changePrice(e){
+    $this.setState({ price : e.target.value });
   }
-  //console.log(postdata);
+  changeName(e){
+    $this.setState({ name : e.target.value });
+  }
+
+  changeDescription(e){
+      $this.setState({ description : e.target.value });
+  }
+  changeCategoryId(e){
+    $this.setState({
+      category_id: e.target.value
+    });
+  }
+  tagsSelectChange = (selectedtag) => {
+      $this.setState({ tags : selectedtag });
+  }
+  componentDidMount(){
+      axioApi.get('/api/product/getAllTags').then((res) => {
+          $this.setState({
+              alltags : res.data
+          });
+      });
+      this.getAllImage();
+      this.getListCat();
+  }
+  getListCat(){
+    axioApi.get('/api/catproduct/getAll').then((res) => {
+      console.log(res.data)
+      $this.setState({
+        listCatProduct: res.data
+      })
+    });
+  }
+  tabRowsListCat(){
+    return $this.state.listCatProduct.map(function(post){
+      return <option value={post._id}>
+      { post.name }
+      </option>
+        
+    });
+  }
+  savePost(){
+    const postdata = {
+        name: $this.state.name,
+        price: $this.state.price,
+        price_old: $this.state.price_old,
+        category_id: $this.state.category_id,
+        imageNumber: $this.state.imageNumber,
+        imagePath: $this.state.imagePath,
+        description: $this.state.description,
+        tags: $this.state.tags,
+        //author : $this.state.author,
+    }
     axioApi.post('/api/product/saveProductAndTag', postdata).then((res) => {
       $this.props.history.push('/product/index');
     });
-}
-//upload image
-getAllImage(){
-  axioApi.get('/api/gallery/getAll').then((res) => {
-      $this.setState({
-          gallerys : res.data
-      });
-  });
-}
-getIdImage(id){
-  axioApi.get('/api/gallery/show/'+id).then((res) => {
-    console.log(res.data);
-    $this.setState({
-      imageNumber: res.data._id,
-      imagePath: res.data.path
+  }
+  //upload image
+  getAllImage(){
+    axioApi.get('/api/gallery/getAll').then((res) => {
+        $this.setState({
+            gallerys : res.data
+        });
     });
-  });
-}
-imageNumbers(){
-  if($this.state.imageNumber!=''){
-    return <input name='imageNumber' className="hidden" value={$this.state.imageNumber}/>;
-  }else{
-    return '';
   }
-}
-imagePath(){
-  if($this.state.imagePath!=''){
-    return <img src={"http://localhost:3008/"+$this.state.imagePath}/>;
-  }else{
-    return '';
+  getIdImage(id){
+    axioApi.get('/api/gallery/show/'+id).then((res) => {
+      console.log(res.data);
+      $this.setState({
+        imageNumber: res.data._id,
+        imagePath: res.data.path
+      });
+    });
   }
-}
-showAllImage(){
-  return $this.state.gallerys.map(function(post, i){
-      return <Col xs="6" sm="3" className="text-center flol">
-      <div color="divItemImage warning">
-        <img className="img100" src={'http://localhost:3008'+post.path} data-path={post.path} data-id={post._id}
-         onClick={(e) => $this.getIdImage(post._id)}/>
-      </div>
-      <div className="clearfix"></div>
-      <Label>{post.name}</Label>
-    </Col>
-  });
-}
+  imageNumbers(){
+    if($this.state.imageNumber!=''){
+      return <input name='imageNumber' className="hidden" value={$this.state.imageNumber}/>;
+    }else{
+      return '';
+    }
+  }
+  imagePath(){
+    if($this.state.imagePath!=''){
+      return <img src={configUrl.baseURL+$this.state.imagePath}/>;
+    }else{
+      return '';
+    }
+  }
+  showAllImage(){
+    return $this.state.gallerys.map(function(post, i){
+        return <Col xs="6" sm="3" className="text-center flol">
+        <div className="colItemImage">
+          <div color="warning" className="divItemImage">
+          <a title={post.filename}>
+            <img className="img100" src={configUrl.baseURL+post.path} alt={post.filename} data-path={post.path} data-id={post._id}
+            onClick={(e) => $this.getIdImage(post._id)}/>
+            </a>
+          </div>
+        </div>
+      </Col>
+    });
+  }
+  onChangeHandler = event =>{
+    const formData = new FormData();
+    formData.append(
+      'file', event.target.files[0]
+    )
+    axioApi.post('/api/gallery/store', formData,{}).then((res) => {
+      this.showAllImage();
+    })
+  }
 render() {
     return (
       <div className="animated fadeIn">
@@ -174,14 +200,22 @@ render() {
                     Chung
                   </NavLink>
                 </NavItem>
-                  <NavItem>
-                    <NavLink
-                      className={classnames({ active: this.state.activeTab === '2' })}
-                      onClick={() => { this.toggle('2'); }}
-                    >
-                      Thuộc tính
-                    </NavLink>
-                  </NavItem>
+                <NavItem>
+                  <NavLink
+                    className={classnames({ active: this.state.activeTab === '2' })}
+                    onClick={() => { this.toggle('2'); }}
+                  >
+                    Dữ liệu
+                  </NavLink>
+                </NavItem>
+                <NavItem>
+                  <NavLink
+                    className={classnames({ active: this.state.activeTab === '6' })}
+                    onClick={() => { this.toggle('6'); }}
+                  >
+                    Ảnh
+                  </NavLink>
+                </NavItem>
                 </Nav>
                 <TabContent activeTab={this.state.activeTab}>
                   <TabPane tabId="1">
@@ -226,16 +260,44 @@ render() {
                   </TabPane>
                   <TabPane tabId="2">
                     <Row>
-                      <Col sm="12">
+                      <Col sm="6">
                         <div className="form-group">
                           <Label htmlFor="price"><strong>Giá sản phẩm</strong></Label>
                           <Input type="number" onChange={this.changePrice} id="price" placeholder="Giá sản phẩm" />
                         </div>
+                      </Col>
+                      <Col sm="6">
+                        <div className="form-group">
+                          <Label htmlFor="price"><strong>Giá gốc</strong></Label>
+                          <Input type="number" onChange={this.changePriceOld} id="price_old" placeholder="Giá gốc" />
+                        </div>
+                      </Col>
+                      <Col sm="6">
+                        <div className="form-group">
+                          <Label htmlFor="category_id"><strong>Danh mục sản phẩm</strong></Label>
+                          <select className="form-control" name="category_id" onChange={this.changeCategoryId}>
+                            <option value="">Danh mục sản phẩm</option>
+                            {this.tabRowsListCat()}
+                          </select>
+                        </div>
+                      </Col>
+                      <Col sm="6">
+                        <div className="form-group">
+                          <Label htmlFor="category_id"><strong>Danh mục sản phẩm</strong></Label>
+                          
+                        </div>
+                      </Col>
+                    </Row>
+                  </TabPane>
+                  <TabPane tabId="6">
+                    <Row>
+                      <Col sm="6">
                         <div className="form-group">
                             <Label htmlFor="image"><strong>Ảnh đại diện</strong></Label>
                             <div>
                               <Button color="primary" onClick={this.togglePrimary} className="mr-1">Chọn ảnh</Button>
-                              <div className="showImage">{this.imagePath()}{this.imageNumbers()}
+                              <div className="showImage">
+                                {this.imagePath()}{this.imageNumbers()}
                               </div>
                             </div>
                         </div>
@@ -248,18 +310,15 @@ render() {
           </Col>
         </Row>
 
-
         <Modal isOpen={this.state.primary} toggle={this.togglePrimary}
-                className={'modal-primary modal-lg ' + this.props.className}>
+              className={'modal-primary modal-lg ' + this.props.className}>
           <ModalHeader toggle={this.togglePrimary}>
-            <button className="buttonUploadImage">
-              Tải ảnh
-              <input type="file" name="file" onChange={this.onChangeHandler}/>
-            </button>
-            
+              <button className="buttonUploadImage">
+                  Tải ảnh <input type="file" name="file" onChange={this.onChangeHandler}/>
+              </button>
           </ModalHeader>
           <ModalBody>
-           {this.showAllImage()}
+          {this.showAllImage()}
           </ModalBody>
           <ModalFooter>
             <Button color="primary" onClick={this.togglePrimary}>Cập nhật</Button>

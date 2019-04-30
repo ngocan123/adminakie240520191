@@ -10,8 +10,7 @@ import {
   Button, Modal, ModalBody, ModalFooter, ModalHeader,
 } from 'reactstrap';
 import axioApi from './../../config/axioConfig';
-import qs from 'qs';
-import CreatableSelect from 'react-select/lib/Creatable';
+import configUrl from './../../config/configUrl';
 
 let $this;
 class Create extends Component {
@@ -118,7 +117,7 @@ imageNumbers(){
 }
 imagePath(){
   if($this.state.imagePath!=''){
-    return <img src={"http://localhost:3008/"+$this.state.imagePath}/>;
+    return <img src={configUrl.baseURL+$this.state.imagePath}/>;
   }else{
     return '';
   }
@@ -126,14 +125,25 @@ imagePath(){
 showAllImage(){
   return $this.state.gallerys.map(function(post, i){
       return <Col xs="6" sm="3" className="text-center flol">
-      <div color="divItemImage warning">
-        <img className="img100" src={'http://localhost:3008'+post.path} data-path={post.path} data-id={post._id}
-         onClick={(e) => $this.getIdImage(post._id)}/>
+      <div className="colItemImage">
+        <div color="warning" className="divItemImage">
+        <a title={post.filename}>
+          <img className="img100" src={configUrl.baseURL+post.path} alt={post.filename} data-path={post.path} data-id={post._id}
+          onClick={(e) => $this.getIdImage(post._id)}/>
+          </a>
+        </div>
       </div>
-      <div className="clearfix"></div>
-      <Label>{post.name}</Label>
     </Col>
   });
+}
+onChangeHandler = event =>{
+  const formData = new FormData();
+  formData.append(
+    'file', event.target.files[0]
+  )
+  axioApi.post('/api/gallery/store', formData,{}).then((res) => {
+    this.showAllImage();
+  })
 }
 render() {
     return (

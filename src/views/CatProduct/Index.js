@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Card, CardBody, CardHeader, Col, Pagination, PaginationItem, PaginationLink, Row, Table } from 'reactstrap'
 import axioApi from './../../config/axioConfig'
+import configUrl from './../../config/configUrl'
 import { Link } from 'react-router-dom'
 import qs from 'qs'
 
@@ -8,20 +9,20 @@ let $this;
 class Index extends Component {
     constructor(props){
 		  super(props);
-      this.state = {'posts' : [], author : '', 'page': 1, 'current': 1, 'pages': 1,}
+      this.state = {'posts' : [], nameCat: '', author : '', 'page': 1, 'current': 1, 'pages': 1,}
       $this = this; 
     }
     componentDidMount(){
       this.getDats();
+      console.log(this.state.nameCat)
     }
     
     getDats(){
         const filter = {
           keyword: $this.state.keyword,
           page: $this.state.page
-        };
+        }
         axioApi.get('/api/catproduct/list?'+qs.stringify(filter)).then((res) => {
-          //console.log(res.data)
           $this.setState({
             posts: res.data.posts,
             current: res.data.current,
@@ -38,17 +39,18 @@ class Index extends Component {
     }
     tabRows(){
       return $this.state.posts.map(function(post){
+          
           return <tr>
-          <td className="text-center wtd100"><img alt={post.imagePath} className="w8" src={'https://ai-shop2.herokuapp.com'+ post.imagePath}/></td>
+          <td className="text-center wtd100"><img alt={post.imagePath} className="w8" src={configUrl.baseURL+ post.imagePath}/></td>
           <td>{post.name}</td>
           <td>{post.description}</td>
           <td>{(post.author)? post.author.email : ''}</td>
-          <td className="text-center">
+          <td className="text-center" style={{width:'120px'}}>
               <Link to={"/catproduct/edit/"+post._id}>
-                  <button className="btn btn-sm btn-warning mar-3"><i className="fa fa-pencil-square-o" aria-hidden="true"></i> Sửa</button>
+                  <button className="btn btn-sm btn-warning mar-3"><i className="fa fa-pencil-square-o" aria-hidden="true"></i></button>
               </Link>
               <button className="btn btn-sm btn-danger mar-3" onClick={() => $this.deletePost(post._id)}>
-                  <i className="fa fa-trash" aria-hidden="true"></i> Xóa
+                  <i className="fa fa-trash" aria-hidden="true"></i>
               </button>
           </td>                   
         </tr>
@@ -104,7 +106,7 @@ class Index extends Component {
                   <tr>
                     <th>Ảnh</th>
                     <th>Tên</th>
-                    <th>Danh mục</th>
+                    <th>Mô tả</th>
                     <th>Hiển thị</th>
                     <th>Hành động</th>
                   </tr>

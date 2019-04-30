@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Card, CardBody, CardHeader, Col, Pagination, PaginationItem, PaginationLink, Row, Table } from 'reactstrap'
 import axioApi from './../../config/axioConfig'
+import configUrl from './../../config/configUrl'
 import { Link } from 'react-router-dom'
 import qs from 'qs'
 
@@ -39,7 +40,7 @@ class Index extends Component {
     tabRows(){
       return $this.state.posts.map(function(post){
           return <tr>
-          <td className="text-center wtd100"><img alt={post.imagePath} className="w8" src={'https://ai-shop2.herokuapp.com'+ post.imagePath}/></td>
+          <td className="text-center wtd100"><img alt={post.imagePath} className="w8" src={configUrl.baseURL+ post.imagePath}/></td>
           <td>{post.name}</td>
           <td>{post.description}</td>
           <td className="text-center" style={{width: '120px'}}>
@@ -103,7 +104,7 @@ class Index extends Component {
                   <tr>
                     <th>Ảnh</th>
                     <th>Tên</th>
-                    <th>Hiển thị</th>
+                    <th>Mô tả</th>
                     <th>Hành động</th>
                   </tr>
                   </thead>

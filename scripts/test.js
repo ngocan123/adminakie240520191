@@ -38,8 +38,6 @@ function isInMercurialRepository() {
   }
 }
 
-// Watch unless on CI, in coverage mode, explicitly adding `--no-watch`,
-// or explicitly running all tests
 if (
   !process.env.CI &&
   argv.indexOf('--coverage') === -1 &&
