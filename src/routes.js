@@ -6,6 +6,16 @@ const IndexAdmin = React.lazy(() => import('./views/Admins/Index'));
 const CreateAdmin = React.lazy(() => import('./views/Admins/Create'));
 const EditAdmin = React.lazy(() => import('./views/Admins/Edit'));
 // // ====Kết thúc quản lý tài khoản
+// ====Quản lý nhóm phân quyền
+const IndexRole = React.lazy(() => import('./views/Role/Index'));
+const CreateRole = React.lazy(() => import('./views/Role/Create'));
+const EditRole = React.lazy(() => import('./views/Role/Edit'));
+// // ====Kết thúc quản lý nhóm phân quyền
+// ====Quản lý tài khoản
+const IndexPermission = React.lazy(() => import('./views/Permission/Index'));
+const CreatePermission = React.lazy(() => import('./views/Permission/Create'));
+const EditPermission = React.lazy(() => import('./views/Permission/Edit'));
+// // ====Kết thúc quản lý tài khoản
 // ====Quản lý sản phẩm
 const IndexProduct = React.lazy(() => import('./views/Product/Index'));
 const CreateProduct = React.lazy(() => import('./views/Product/Create'));
@@ -70,6 +80,16 @@ const routes = [
   { path: '/admin/create', name: 'Thêm tài khoản', component: CreateAdmin },
   { path: '/admin/edit/:id', name: 'Sửa tài khoản', component: EditAdmin },
   // ===== Kết thúc quản lý tài khoản
+  //====== Quản lý quyền hạn
+  { path: '/role/index', name: 'Danh sách vai trò', component: IndexRole },
+  { path: '/role/create', name: 'Thêm vai trò', component: CreateRole },
+  { path: '/role/edit/:id', name: 'Sửa vai trò', component: EditRole },
+  // ===== Kết thúc quản lý quyền hạn
+  //====== Quản lý quyền hạn
+  { path: '/permission/index', name: 'Danh sách quyền hạn', component: IndexPermission },
+  { path: '/permission/create', name: 'Thêm quyền hạn', component: CreatePermission },
+  { path: '/permission/edit/:id', name: 'Sửa quyền hạn', component: EditPermission },
+  // ===== Kết thúc quản lý quyền hạn
   //====== Quản lý sản phẩm
   { path: '/product/index', name: 'Danh sách sản phẩm', component: IndexProduct },
   { path: '/product/create', name: 'Thêm sản phẩm', component: CreateProduct },

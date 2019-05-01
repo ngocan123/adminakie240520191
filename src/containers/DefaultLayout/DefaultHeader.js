@@ -17,6 +17,7 @@ class DefaultHeader extends Component {
   logout(){
     localStorage.removeItem('token');
     localStorage.removeItem('user_id');
+    // this.history.push('/login')
     window.location.reload();
   }
 

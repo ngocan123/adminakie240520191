@@ -21,12 +21,12 @@ export default {
         },
         {
           name: 'Nhóm phần quyền',
-          url: '/base/cards',
+          url: '/role/index',
           icon: 'icon-puzzle',
         },
         {
           name: 'Danh sách quyền hạn',
-          url: '/base/carousels',
+          url: '/permission/index',
           icon: 'icon-puzzle',
         },
       ],
