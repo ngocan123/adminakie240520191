@@ -10,6 +10,7 @@ import {
   Row,
   Button, Modal, ModalBody, ModalFooter, ModalHeader
 } from 'reactstrap';
+import Select from 'react-select';
 //import ManagerGallery from './../Gallery/ManagerGallery';
 import axioApi from './../../config/axioConfig';
 import configUrl from './../../config/configUrl';
@@ -33,11 +34,16 @@ class Create extends Component {
         name : '', description : '', tags : [], alltags : [], author : '',
         selectedFile: null,
         listCatProduct: [],
-        category_id: '',
+        listSupplier: [],
+        category_id: null,
+        supplier_id: null,
+        style_ids: [],
+        listStyleProduct: [],
         gallerys: [],
         imageNumber: '',
         imagePath: '',
-        price: '',
+        price: 0,
+        price_old: 0,
         title_seo: '',
         description_seo: '',
         keyword_seo: '',
@@ -67,7 +73,10 @@ class Create extends Component {
   }
   //setup send data to serve
   changePrice(e){
-    $this.setState({ price : e.target.value });
+    $this.setState({ price: e.target.value });
+  }
+  changePriceOld(e){
+    $this.setState({ price_old: e.target.value });
   }
   changeName(e){
     $this.setState({ name : e.target.value });
@@ -81,6 +90,16 @@ class Create extends Component {
       category_id: e.target.value
     });
   }
+  changeSupplierId = (vsup) => {
+    $this.setState({
+      supplier_id: vsup.value
+    });
+  }
+  changeStyleProductId = (vsup) => {
+    $this.setState({
+      styles_id: vsup
+    });
+  }
   tagsSelectChange = (selectedtag) => {
       $this.setState({ tags : selectedtag });
   }
@@ -92,10 +111,12 @@ class Create extends Component {
       });
       this.getAllImage();
       this.getListCat();
+      this.getListSupplier();
+      this.getListStyle();
   }
+  //Danh sách danh mục
   getListCat(){
     axioApi.get('/api/catproduct/getAll').then((res) => {
-      console.log(res.data)
       $this.setState({
         listCatProduct: res.data
       })
@@ -106,7 +127,30 @@ class Create extends Component {
       return <option value={post._id}>
       { post.name }
       </option>
-        
+    });
+  }
+  //Danh sách nhà cung cấp
+  getListSupplier(){
+    axioApi.get('/api/supplier/getAll').then((res) => {
+      console.log(res.data)
+      $this.setState({
+        listSupplier: res.data
+      })
+    });
+  }
+  //Danh sách loại sản phẩm
+  getListStyle(){
+    axioApi.get('/api/styleproduct/getAll').then((res) => {
+      $this.setState({
+        listStyleProduct: res.data
+      })
+    });
+  }
+  tabRowsSupplier(){
+    return $this.state.listSupplier.map(function(post){
+      return <option value={post._id}>
+      { post.name }
+      </option>
     });
   }
   savePost(){
@@ -115,14 +159,21 @@ class Create extends Component {
         price: $this.state.price,
         price_old: $this.state.price_old,
         category_id: $this.state.category_id,
+        supplier_id: $this.state.supplier_id,
+        styles_id: $this.state.styles_id,
         imageNumber: $this.state.imageNumber,
         imagePath: $this.state.imagePath,
         description: $this.state.description,
         tags: $this.state.tags,
         //author : $this.state.author,
     }
+    //console.log(postdata);
+    postdata.tags = postdata.tags.map(function(t){
+        return t.label;
+    })
     axioApi.post('/api/product/saveProductAndTag', postdata).then((res) => {
-      $this.props.history.push('/product/index');
+      console.log(res.data)
+      //$this.props.history.push('/product/index');
     });
   }
   //upload image
@@ -135,7 +186,7 @@ class Create extends Component {
   }
   getIdImage(id){
     axioApi.get('/api/gallery/show/'+id).then((res) => {
-      console.log(res.data);
+      //console.log(res.data);
       $this.setState({
         imageNumber: res.data._id,
         imagePath: res.data.path
@@ -197,7 +248,7 @@ render() {
                     className={classnames({ active: this.state.activeTab === '1' })}
                     onClick={() => { this.toggle('1'); }}
                   >
-                    Chung
+                  <strong>Chung</strong>
                   </NavLink>
                 </NavItem>
                 <NavItem>
@@ -205,7 +256,7 @@ render() {
                     className={classnames({ active: this.state.activeTab === '2' })}
                     onClick={() => { this.toggle('2'); }}
                   >
-                    Dữ liệu
+                  <strong>Dữ liệu</strong>
                   </NavLink>
                 </NavItem>
                 <NavItem>
@@ -213,7 +264,7 @@ render() {
                     className={classnames({ active: this.state.activeTab === '6' })}
                     onClick={() => { this.toggle('6'); }}
                   >
-                    Ảnh
+                  <strong>Ảnh</strong>
                   </NavLink>
                 </NavItem>
                 </Nav>
@@ -283,8 +334,25 @@ render() {
                       </Col>
                       <Col sm="6">
                         <div className="form-group">
-                          <Label htmlFor="category_id"><strong>Danh mục sản phẩm</strong></Label>
-                          
+                          <Label htmlFor="supplier_id"><strong>Nhà cung cấp</strong></Label>
+                          <Select
+                              name="supplier_id"
+                              isMulti = {false}
+                              onChange = {this.changeSupplierId}
+                              options = {$this.state.listSupplier}
+                            />
+                        </div>
+                      </Col>
+                      <Col sm="6">
+                        <div className="form-group">
+                          <Label htmlFor="styles_id"><strong>Loại sản phẩm</strong></Label>
+                          <Select
+                              name="styles_id[]"
+                              isMulti = {true}
+                              placeholder = "Loại sản phẩm"
+                              onChange = {this.changeStyleProductId}
+                              options = {$this.state.listStyleProduct}
+                            />
                         </div>
                       </Col>
                     </Row>

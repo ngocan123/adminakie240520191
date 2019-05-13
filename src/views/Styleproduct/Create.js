@@ -81,7 +81,7 @@ componentDidMount(){
   this.getListCat();
 }
 getListCat(){
-  axioApi.get('/api/catproduct/getAll').then((res) => {
+  axioApi.get('/api/styleproduct/getAll').then((res) => {
     $this.setState({
       listCatProduct: res.data
     })
@@ -98,8 +98,10 @@ savePost(){
     description_seo: $this.state.description_seo,
     keyword_seo: $this.state.keyword_seo,
   }
-  axioApi.post('/api/catproduct/store', postdata).then((res) => {
-    $this.props.history.push('/catproduct/index');
+  //console.log(postdata);
+  axioApi.post('/api/styleproduct/store', postdata).then((res) => {
+    //console.log(res.data)
+    $this.props.history.push('/styleproduct/index');
   });
 }
 //upload image
@@ -167,18 +169,18 @@ render() {
           <Col xs="12" sm="12">
             <Card>
               <CardHeader>
-                <strong>Thêm danh mục</strong>
+                <strong>Thêm loại sản phẩm</strong>
                 <button onClick={this.savePost} className="btn btn-sm btn-primary flor">Cập nhật</button>
               </CardHeader>
               <CardBody>
                 <div className="form-group">
-                  <Label htmlFor="name"><strong>Tên danh mục</strong></Label>
-                  <Input type="text" onChange={this.changeName} id="name" placeholder="Tên danh mục" required />
+                  <Label htmlFor="name"><strong>Tên loại sản phẩm</strong></Label>
+                  <Input type="text" onChange={this.changeName} id="name" placeholder="Tên loại sản phẩm" required />
                 </div>
                 <div className="form-group">
-                  <Label htmlFor="parent_id">Danh mục cha</Label>
+                  <Label htmlFor="parent_id">Loại sản phẩm</Label>
                   <select className="form-control" name="parent_id" onChange={this.changeParentId}>
-                    <option value="">Danh mục cha</option>
+                    <option value="">Loại sản phẩm cha</option>
                     {this.tabRowsListCat()}
                   </select>
                 </div>

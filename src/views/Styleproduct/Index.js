@@ -9,31 +9,29 @@ let $this;
 class Index extends Component {
     constructor(props){
 		  super(props);
-      this.state = {'posts' : [], nameCat: '', author : '', 'page': 1, 'current': 1, 'pages': 1,}
+      this.state = {'posts' : [], author : '', 'page': 1, 'current': 1, 'pages': 1,}
       $this = this; 
     }
     componentDidMount(){
       this.getDats();
-      console.log(this.state.nameCat)
     }
-    
     getDats(){
         const filter = {
           keyword: $this.state.keyword,
           page: $this.state.page
         }
-        axioApi.get('/api/catproduct/list?'+qs.stringify(filter)).then((res) => {
-          //console.log(res.data.posts)
+        axioApi.get('/api/styleproduct/list?'+qs.stringify(filter)).then((res) => {
           $this.setState({
             posts: res.data.posts,
             current: res.data.current,
             pages: res.data.pages,
           })
           this.showPaginate();
+          console.log($this.state.pages);
         });
     }
     deletePost(id){
-        axioApi.post('/api/catproduct/remove', {_id : id}).then((res) => {
+        axioApi.post('/api/styleproduct/remove', {_id : id}).then((res) => {
             $this.getDats()
         });
     }
@@ -46,7 +44,7 @@ class Index extends Component {
           <td>{post.description}</td>
           <td>{(post.author)? post.author.email : ''}</td>
           <td className="text-center" style={{width:'120px'}}>
-              <Link to={"/catproduct/edit/"+post._id}>
+              <Link to={"/styleproduct/edit/"+post._id}>
                   <button className="btn btn-sm btn-warning mar-3"><i className="fa fa-pencil-square-o" aria-hidden="true"></i></button>
               </Link>
               <button className="btn btn-sm btn-danger mar-3" onClick={() => $this.deletePost(post._id)}>
@@ -92,7 +90,7 @@ class Index extends Component {
             <Card>
               <CardHeader>
                 <i className="fa fa-align-justify"></i> Danh sách danh mục
-                <Link to="/catproduct/create"><button className="btn btn-sm btn-success flor"><i className="fa fa-plus" aria-hidden="true"></i> Thêm</button></Link>
+                <Link to="/styleproduct/create"><button className="btn btn-sm btn-success flor"><i className="fa fa-plus" aria-hidden="true"></i> Thêm</button></Link>
               </CardHeader>
               <div className="h15"></div>
               <div>

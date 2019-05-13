@@ -33,6 +33,7 @@ class Index extends Component {
     }
     deletePost(id){
       axioApi.post('/api/admin/remove', {_id : id}).then((res) => {
+          
           $this.getDats()
       });
     }

@@ -25,12 +25,22 @@ const EditProduct = React.lazy(() => import('./views/Product/Edit'));
 const IndexCatProduct = React.lazy(() => import('./views/CatProduct/Index'));
 const CreateCatProduct = React.lazy(() => import('./views/CatProduct/Create'));
 const EditCatProduct = React.lazy(() => import('./views/CatProduct/Edit'));
-// // ====Kết thúc quản lý danh mục sản phẩm
+// ====Kết thúc quản lý danh mục sản phẩm
+// ====Quản lý danh mục sản phẩm
+const IndexStyleProduct = React.lazy(() => import('./views/Styleproduct/Index'));
+const CreateStyleProduct = React.lazy(() => import('./views/Styleproduct/Create'));
+const EditStyleProduct = React.lazy(() => import('./views/Styleproduct/Edit'));
+// ====Kết thúc quản lý danh mục sản phẩm
 // ====Quản lý danh mục sản phẩm
 const IndexSupplier = React.lazy(() => import('./views/Supplier/Index'));
 const CreateSupplier = React.lazy(() => import('./views/Supplier/Create'));
 const EditSupplier = React.lazy(() => import('./views/Supplier/Edit'));
-// // ====Kết thúc quản lý danh mục sản phẩm
+// ====Kết thúc quản lý danh mục sản phẩm
+// ====Quản lý menu
+const IndexMenu = React.lazy(() => import('./views/Menu/Index'));
+const CreateMenu = React.lazy(() => import('./views/Menu/Create'));
+const EditMenu = React.lazy(() => import('./views/Menu/Edit'));
+// ====Kết thúc quản lý menu
 // ====== Cấu hình 
 const Setting = React.lazy(() => import('./views/Setting/Setting'));
 // Ket thuc router
@@ -100,11 +110,21 @@ const routes = [
   { path: '/catproduct/create', name: 'Thêm danh mục', component: CreateCatProduct },
   { path: '/catproduct/edit/:id', name: 'Sửa danh mục', component: EditCatProduct },
   // ===== Kết thúc quản lý danh mục sản phẩm
+    //====== Quản lý danh mục sản phẩm
+    { path: '/styleproduct/index', name: 'Loại sản phẩm', component: IndexStyleProduct },
+    { path: '/styleproduct/create', name: 'Thêm loại sản phẩm', component: CreateStyleProduct },
+    { path: '/styleproduct/edit/:id', name: 'Sửa loại sản phẩm', component: EditStyleProduct },
+    // ===== Kết thúc quản lý danh mục sản phẩm
   //====== Quản lý nhà cung cấp
   { path: '/supplier/index', name: 'Nhà cung cấp', component: IndexSupplier },
   { path: '/supplier/create', name: 'Thêm nhà cung cấp', component: CreateSupplier },
   { path: '/supplier/edit/:id', name: 'Sửa nhà cung cấp', component: EditSupplier },
   // ===== Kết thúc quản lý nhà cung cấp
+  //====== Quản lý nhà menu
+  { path: '/menu/index', name: 'Danh sách menu', component: IndexMenu },
+  { path: '/menu/create', name: 'Thêm menu', component: CreateMenu },
+  { path: '/menu/edit/:id', name: 'Sửa menu', component: EditMenu },
+  // ===== Kết thúc quản lý menu
   // ===== Cấu hình hệ thống ==== //
   { path: '/setting/:lang', name: 'Cấu hình chung', component: Setting },
   //End Router

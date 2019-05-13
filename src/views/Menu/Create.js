@@ -66,22 +66,13 @@ changeDescription(e) {
 changeParentId(e) {
     $this.setState({ parent_id : e.target.value });
 }
-changeTitle_seo(e) {
-  $this.setState({ title_seo : e.target.value });
-}
-changeDescription_seo(e) {
-  $this.setState({ description_seo : e.target.value });
-}
-changeKeyword_seo(e) {
-  $this.setState({ keyword_seo : e.target.value });
-}
 componentDidMount(){
   this.showAllImage();
   this.getAllImage();
   this.getListCat();
 }
 getListCat(){
-  axioApi.get('/api/catproduct/getAll').then((res) => {
+  axioApi.get('/api/menu/getAlls').then((res) => {
     $this.setState({
       listCatProduct: res.data
     })
@@ -94,12 +85,9 @@ savePost(){
     parent_id: $this.state.parent_id,
     imageNumber: $this.state.imageNumber,
     imagePath: $this.state.imagePath,
-    title_seo: $this.state.title_seo,
-    description_seo: $this.state.description_seo,
-    keyword_seo: $this.state.keyword_seo,
   }
-  axioApi.post('/api/catproduct/store', postdata).then((res) => {
-    $this.props.history.push('/catproduct/index');
+  axioApi.post('/api/menu/store', postdata).then((res) => {
+    $this.props.history.push('/menu/index');
   });
 }
 //upload image
@@ -167,23 +155,23 @@ render() {
           <Col xs="12" sm="12">
             <Card>
               <CardHeader>
-                <strong>Thêm danh mục</strong>
+                <strong>Thêm menu</strong>
                 <button onClick={this.savePost} className="btn btn-sm btn-primary flor">Cập nhật</button>
               </CardHeader>
               <CardBody>
                 <div className="form-group">
-                  <Label htmlFor="name"><strong>Tên danh mục</strong></Label>
+                  <Label htmlFor="name"><strong>Tên menu</strong></Label>
                   <Input type="text" onChange={this.changeName} id="name" placeholder="Tên danh mục" required />
                 </div>
                 <div className="form-group">
-                  <Label htmlFor="parent_id">Danh mục cha</Label>
+                  <Label htmlFor="parent_id"><strong>Chọn menu cha</strong></Label>
                   <select className="form-control" name="parent_id" onChange={this.changeParentId}>
-                    <option value="">Danh mục cha</option>
+                  <option value="">Chọn menu cha</option>
                     {this.tabRowsListCat()}
                   </select>
                 </div>
                 <div className="form-group">
-                    <Label htmlFor="description">Ảnh đại diện</Label>
+                    <Label htmlFor="description"><strong>Ảnh đại diện</strong></Label>
                     <div>
                       <Button color="primary" onClick={this.togglePrimary} className="mr-1">Chọn ảnh</Button>
                       <div className="showImage">{this.imagePath()}{this.imageNumbers()}
@@ -194,21 +182,6 @@ render() {
                   <Label htmlFor="description"><strong>Mô tả</strong></Label>
                   <Input type="textarea" onChange={this.changeDescription} name="description" id="description"
                         placeholder="Mô tả" rows="3"/>
-                </div>
-                <hr></hr>
-                <div className="form-group">
-                  <Label htmlFor="title_seo"><strong>Tiêu đề seo</strong></Label>
-                  <Input type="text" onChange={this.changeTitle_seo} id="title_seo" placeholder="Tiêu đề seo" />
-                </div>
-                <div className="form-group">
-                  <Label htmlFor="description_seo"><strong>Mô tả seo</strong></Label>
-                  <Input type="textarea" onChange={this.changeDescription_seo} name="description_seo" id="description_seo"
-                        placeholder="Mô tả seo" rows="3"/>
-                </div>
-                <div className="form-group">
-                  <Label htmlFor="description_seo"><strong>Từ khóa seo</strong></Label>
-                  <Input type="textarea" onChange={this.changeKeyword_seo} name="keyword_seo" id="keyword_seo"
-                        placeholder="Từ khóa seo" rows="3"/>
                 </div>
               </CardBody>
             </Card>

@@ -47,6 +47,11 @@ export default {
           icon: 'icon-puzzle',
         },
         {
+          name: 'Loại sản phẩm',
+          url: '/styleproduct/index',
+          icon: 'icon-puzzle',
+        },
+        {
           name: 'Nhà cung cấp',
           url: '/supplier/index',
           icon: 'icon-puzzle',
@@ -78,6 +83,11 @@ export default {
         {
           name: 'Cài đặt chung',
           url: '/setting/vi',
+          icon: 'icon-puzzle',
+        },
+        {
+          name: 'Quản lý menu',
+          url: '/menu/index',
           icon: 'icon-puzzle',
         }
       ],

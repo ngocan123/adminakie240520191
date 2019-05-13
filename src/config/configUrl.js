@@ -1,5 +1,5 @@
 //import axios from 'axios';
 const configUrl = {
-    baseURL: 'https://apishopakie.herokuapp.com/'
+    baseURL: 'http://localhost:3008'
 };
 export default configUrl

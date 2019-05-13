@@ -109,7 +109,7 @@ getItemPost(){
   });
   axioApi.get('/api/product/show/'+$this.props.match.params.id).then((res) => {
       const tags = res.data.tags.map(function(obj, i){
-          return {value: obj._id, label:obj.label};
+          return {value: obj.label, label:obj.label};
       });
       if(res.data.category_id){
         $this.setState({
@@ -283,6 +283,7 @@ render() {
                                   onChange={this.tagsSelectChange}
                                   //onInputChange={this.handleInputChange}
                                   options={this.state.alltags}
+                                  value={this.state.tags}
                                   isMulti = {true}
                               />
                           </div>
