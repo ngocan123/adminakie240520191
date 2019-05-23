@@ -28,7 +28,8 @@ let $this;
 
 class Index extends Component {
     constructor(props){
-      super(props)
+      super(props);
+      
       this.state = {
         posts : [],
         listitems: [],
@@ -36,26 +37,26 @@ class Index extends Component {
         listpositionmenu: [],
         renderItem: '', author : '', page: 1, current: 1, pages: 1
       }
-      $this = this;
+      $this = this; 
     }
     componentDidMount(){
       this.getDats();
       this.getListMenu();
-      this.listPosiitionmenu();
     }
     loadEdit({ node, path, treeIndex }){
       const objectString = Object.keys(node)
       .map(k => (k === 'children' ? 'children: Array' : `${k}: '${node[k]}'`))
       .join(',\n   ');
       //console.log(node);
-      $this.props.history.push('/menu/edit/'+node._id);
+      $this.props.history.push('/stylegallery/edit/'+node._id);
     }
+    
     getDats(){
         const filter = {
           keyword: $this.state.keyword,
           page: $this.state.page
         }
-        axioApi.get('/api/menu/list?'+qs.stringify(filter)).then((res) => {
+        axioApi.get('/api/stylegallery/list?'+qs.stringify(filter)).then((res) => {
           $this.setState({
             posts: res.data.posts,
             current: res.data.current,
@@ -65,33 +66,17 @@ class Index extends Component {
         })
     }
     getListMenu(){
-      axioApi.get('/api/menu/getAll').then((res) => {
+      axioApi.get('/api/stylegallery/getAll').then((res) => {
         $this.setState({
           listitems: res.data,
           treeData: res.data
         })
       });
     }
-    
     deletePost(id){
-        axioApi.post('/api/menu/remove', {_id : id}).then((res) => {
+        axioApi.post('/api/stylegallery/remove', {_id : id}).then((res) => {
             $this.getDats()
         });
-    }
-    listPosiitionmenu(){
-       const filter = {}
-      axioApi.get('/api/positionmenu/list?'+qs.stringify(filter)).then((res) => {
-        $this.setState({
-          listpositionmenu: res.data.posts
-        })
-        //console.log(res.data.posts)
-        this.showpositionmenu();
-      })
-    }
-    showpositionmenu(){
-      return $this.state.listpositionmenu.map(function(post, index){
-        return <button className="btn btn-md btn-info activemenu" style={{color:"white",marginRight:"10px",marginLeft:"10px"}}>{post.name}</button>
-      })
     }
     tabRows(){
       return $this.state.posts.map(function(post){
@@ -100,9 +85,9 @@ class Index extends Component {
           <td className="text-center wtd100"><img alt={post.imagePath} className="w8" src={configUrl.baseURL+ post.imagePath}/></td>
           <td>{post.name}</td>
           <td>{post.description}</td>
-          <td>{(post.author)? post.author.email : ''}</td>
+          <td>{post.keyname}</td>
           <td className="text-center" style={{width:'120px'}}>
-              <Link to={"/menu/edit/"+post._id}>
+              <Link to={"/stylegallery/edit/"+post._id}>
                   <button className="btn btn-sm btn-warning mar-3"><i className="fa fa-pencil-square-o" aria-hidden="true"></i></button>
               </Link>
               <button className="btn btn-sm btn-danger mar-3" onClick={() => $this.deletePost(post._id)}>
@@ -143,9 +128,8 @@ class Index extends Component {
           <Col>
             <Card>
               <CardHeader>
-                <i className="fa fa-align-justify"></i> Danh sách menu
-                <Link to="/menu/create"><button className="btn btn-sm btn-success flor"><i className="fa fa-plus" aria-hidden="true"></i> Thêm</button></Link>
-                <Link to="/positionmenu/create"><button className="btn btn-sm btn-success flor" style={{marginRight:"10px",marginLeft:"10px"}}><i className="fa fa-plus" aria-hidden="true"></i> Thêm vị trí menu</button></Link>
+                <i className="fa fa-align-justify"></i> Danh sách loại ảnh
+                <Link to="/stylegallery/create"><button className="btn btn-sm btn-success flor"><i className="fa fa-plus" aria-hidden="true"></i> Thêm</button></Link>
               </CardHeader>
               <div className="h15"></div>
               <div>
@@ -154,48 +138,13 @@ class Index extends Component {
                 </div>
               </div>
               <CardBody>
-                <div className="h15"></div>
-                <div className="clearfix" style={{textAlign:"center"}}>
-                  {this.showpositionmenu()}
-                  {/* <button className="btn btn-md btn-info activemenu" style={{color:"white",marginRight:"10px",marginLeft:"10px"}}>Menu đầu trang</button>
-                  <button className="btn btn-md btn-default noactivemenu" style={{marginRight:"10px",marginLeft:"10px"}}>Menu giữa</button> */}
-                </div>
-                <div style={{ height: 400 }}>
-                  <SortableTree
-                    treeData={this.state.treeData}
-                    onChange={treeData => this.setState({ treeData })}
-                    generateNodeProps={rowInfo => ({
-                      buttons: [
-                        <button
-                          className="btn btn-outline-success"
-                          style={{
-                            verticalAlign: 'middle',
-                          }}
-                          onClick={() => this.loadEdit(rowInfo)}
-                        >
-                          <i className="fa fa-pencil-square-o" aria-hidden="true"></i>
-                        </button>,
-                        <button
-                          className="btn btn-outline-danger"
-                          style={{
-                            verticalAlign: 'middle',
-                          }}
-                          onClick={() => this.loadEdit(rowInfo)}
-                        >
-                          <i className="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                      ],
-                    })}
-                  />
-                </div>
-
                 <Table hover bordered striped responsive size="sm">
                   <thead>
                   <tr>
                     <th>Ảnh</th>
-                    <th>Họ Tên</th>
-                    <th>Email</th>
-                    <th>Điện thoại</th>
+                    <th>Tên vị trí</th>
+                    <th>Mô tả</th>
+                    <th>Mã vị trí</th>
                     <th>Hành động</th>
                   </tr>
                   </thead>

@@ -34,6 +34,9 @@ class Create extends Component {
         gallerys: [],
         listCatProduct: [],
         parent_id: '',
+        listpositionmenu: [],
+        position_id: '',
+        keyname: '',
         title_seo: '',
         description_seo: '',
         keyword_seo: '',
@@ -65,6 +68,21 @@ changeDescription(e){
 changeParentId(e) {
     $this.setState({ parent_id : e.target.value });
 }
+changePositionId(e){
+  $this.setState({ position_id : e.target.value });
+  if(e.target.value!=''){
+    axioApi.get('/api/positionmenu/show/'+e.target.value).then((res) => {
+      console.log(res.data)
+      $this.setState({
+          keyname: res.data.keyname,
+      })
+    })
+  }else{
+    $this.setState({
+      keyname: null,
+    })
+  }
+}
 changeTitle_seo(e) {
   $this.setState({ title_seo : e.target.value });
 }
@@ -76,18 +94,15 @@ changeKeyword_seo(e) {
 }
 componentDidMount(){
   axioApi.get('/api/menu/show/'+$this.props.match.params.id).then((res) => {
-    if(res.data.parent_id){
-      $this.setState({
-        parent_id: res.data.parent_id._id
-      });
-    }else{
-      $this.setState({
-        parent_id: null
-      });
-    }
+    //console.log(res.data)
+    $this.setState({
+      parent_id: res.data.parent_id
+    });
     $this.setState({
         _id: res.data._id,
         name: res.data.name,
+        position_id: res.data.position_id,
+        keyname: res.data.keyname,
         description: res.data.description,
         imagePath: res.data.imagePath,
         imageNumber: res.data.imageNumber,
@@ -96,21 +111,49 @@ componentDidMount(){
         keyword_seo: res.data.keyword_seo,
     });
   });
-  this.showAllImage();
-  this.getAllImage();
-  this.getListCat();
+  this.showAllImage()
+  this.getAllImage()
+  this.getListCat()
+  this.listPosiitionmenu()
+}
+listPosiitionmenu(){
+  const filter = {
+
+  }
+ axioApi.get('/api/positionmenu/list?'+qs.stringify(filter)).then((res) => {
+   $this.setState({
+     listpositionmenu: res.data.posts
+   })
+   this.showpositionmenu()
+ })
+}
+showmenuparent(){
+
+}
+showpositionmenu(){
+  return $this.state.listpositionmenu.map(function(post, index){
+    if(post._id==$this.state.position_id){
+      return <option value={post._id} selected>
+      { post.name }
+      </option>
+    }else{
+      return <option value={post._id}>
+      { post.name }
+      </option>
+    }
+  })
 }
 getListCat(){
-  axioApi.get('/api/menu/getAll').then((res) => {
+  axioApi.get('/api/menu/getAlls').then((res) => {
     $this.setState({
       listCatProduct: res.data
     })
   });
 }
 tabRowsListCat(){
-  return $this.state.listCatProduct.map(function(post){
+  return $this.state.listCatProduct.map(function(post, index){
     if(post._id==$this.state.parent_id){
-      return <option value={post._id} data-parent={$this.state.parent_id} selected>
+      return <option value={post._id} dataTitle={$this.state.parent_id} selected>
       { post.name }
       </option>
     }else{
@@ -126,6 +169,8 @@ savePost(){
     name: $this.state.name,
     description: $this.state.description,
     parent_id: $this.state.parent_id,
+    position_id: $this.state.position_id,
+    keyname: $this.state.keyname,
     imageNumber: $this.state.imageNumber,
     imagePath: $this.state.imagePath,
     title_seo: $this.state.title_seo,
@@ -180,7 +225,7 @@ showAllImage(){
   });
 }
 getListCat(){
-  axioApi.get('/api/menu/getAll').then((res) => {
+  axioApi.get('/api/menu/getAlls').then((res) => {
     $this.setState({
       listCatProduct: res.data
     })
@@ -198,14 +243,21 @@ render() {
               </CardHeader>
               <CardBody>
                 <div className="form-group">
-                  <Label htmlFor="name"><strong>Tên danh mục</strong></Label>
+                  <Label htmlFor="name"><strong>Tên menu</strong></Label>
                   <Input type="text" value={$this.state.name} onChange={this.changeName} id="name" placeholder="Tên danh mục" required />
                 </div>
                 <div className="form-group">
-                  <Label htmlFor="parent_id">Danh mục cha</Label>
+                  <Label htmlFor="parent_id"><strong>Chọn menu cha</strong></Label>
                   <select className="form-control" name="parent_id" onChange={this.changeParentId}>
-                    <option value="">Danh mục cha</option>
+                    <option value="">Chọn menu cha</option>
                     {this.tabRowsListCat()}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <Label htmlFor="position_id"><strong>Vị trí menu</strong></Label>
+                  <select className="form-control" name="position_id" onChange={this.changePositionId}>
+                  <option value="">Vị trí menu</option>
+                    {this.showpositionmenu()}
                   </select>
                 </div>
                 <div className="form-group">

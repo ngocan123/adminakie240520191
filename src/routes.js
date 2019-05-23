@@ -41,6 +41,21 @@ const IndexMenu = React.lazy(() => import('./views/Menu/Index'));
 const CreateMenu = React.lazy(() => import('./views/Menu/Create'));
 const EditMenu = React.lazy(() => import('./views/Menu/Edit'));
 // ====Kết thúc quản lý menu
+// ====Quản lý vị trí menu
+const IndexPositionmenu = React.lazy(() => import('./views/Positionmenu/Index'));
+const CreatePositionmenu = React.lazy(() => import('./views/Positionmenu/Create'));
+const EditPositionmenu = React.lazy(() => import('./views/Positionmenu/Edit'));
+// ====Kết thúc quản lý vị trí menu
+// ====Quản lý loại ảnh
+const IndexStylegallery = React.lazy(() => import('./views/Stylegallery/Index'));
+const CreateStylegallery = React.lazy(() => import('./views/Stylegallery/Create'));
+const EditStylegallery = React.lazy(() => import('./views/Stylegallery/Edit'));
+// ====Kết thúc quản lý loại ảnh
+// ====Quản lý ảnh
+const IndexPhoto = React.lazy(() => import('./views/Photo/Index'));
+const CreatePhoto = React.lazy(() => import('./views/Photo/Create'));
+const EditPhoto = React.lazy(() => import('./views/Photo/Edit'));
+// ====Kết thúc quản lý ảnh
 // ====== Cấu hình 
 const Setting = React.lazy(() => import('./views/Setting/Setting'));
 // Ket thuc router
@@ -110,11 +125,11 @@ const routes = [
   { path: '/catproduct/create', name: 'Thêm danh mục', component: CreateCatProduct },
   { path: '/catproduct/edit/:id', name: 'Sửa danh mục', component: EditCatProduct },
   // ===== Kết thúc quản lý danh mục sản phẩm
-    //====== Quản lý danh mục sản phẩm
-    { path: '/styleproduct/index', name: 'Loại sản phẩm', component: IndexStyleProduct },
-    { path: '/styleproduct/create', name: 'Thêm loại sản phẩm', component: CreateStyleProduct },
-    { path: '/styleproduct/edit/:id', name: 'Sửa loại sản phẩm', component: EditStyleProduct },
-    // ===== Kết thúc quản lý danh mục sản phẩm
+  //====== Quản lý danh mục sản phẩm
+  { path: '/styleproduct/index', name: 'Loại sản phẩm', component: IndexStyleProduct },
+  { path: '/styleproduct/create', name: 'Thêm loại sản phẩm', component: CreateStyleProduct },
+  { path: '/styleproduct/edit/:id', name: 'Sửa loại sản phẩm', component: EditStyleProduct },
+  // ===== Kết thúc quản lý danh mục sản phẩm
   //====== Quản lý nhà cung cấp
   { path: '/supplier/index', name: 'Nhà cung cấp', component: IndexSupplier },
   { path: '/supplier/create', name: 'Thêm nhà cung cấp', component: CreateSupplier },
@@ -125,6 +140,21 @@ const routes = [
   { path: '/menu/create', name: 'Thêm menu', component: CreateMenu },
   { path: '/menu/edit/:id', name: 'Sửa menu', component: EditMenu },
   // ===== Kết thúc quản lý menu
+  //====== Quản lý nhà vị trí menu
+  { path: '/positionmenu/index', name: 'Danh sách vị trí menu', component: IndexPositionmenu },
+  { path: '/positionmenu/create', name: 'Thêm vị trí menu', component: CreatePositionmenu },
+  { path: '/positionmenu/edit/:id', name: 'Sửa vị trí menu', component: EditPositionmenu },
+  // ===== Kết thúc quản lý vị trí menu
+  //====== Quản lý loại ảnh
+  { path: '/stylegallery/index', name: 'Danh sách loại ảnh', component: IndexStylegallery },
+  { path: '/stylegallery/create', name: 'Thêm loại ảnh', component: CreateStylegallery },
+  { path: '/stylegallery/edit/:id', name: 'Sửa loại ảnh', component: EditStylegallery },
+  // ===== Kết thúc quản lý loại ảnh
+  //====== Quản lý ảnh
+  { path: '/photo/index', name: 'Danh sách ảnh', component: IndexPhoto },
+  { path: '/photo/create', name: 'Thêm ảnh', component: CreatePhoto },
+  { path: '/photo/edit/:id', name: 'Sửa ảnh', component: EditPhoto },
+  // ===== Kết thúc quản lý ảnh
   // ===== Cấu hình hệ thống ==== //
   { path: '/setting/:lang', name: 'Cấu hình chung', component: Setting },
   //End Router

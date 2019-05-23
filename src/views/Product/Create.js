@@ -11,7 +11,6 @@ import {
   Button, Modal, ModalBody, ModalFooter, ModalHeader
 } from 'reactstrap';
 import Select from 'react-select';
-//import ManagerGallery from './../Gallery/ManagerGallery';
 import axioApi from './../../config/axioConfig';
 import configUrl from './../../config/configUrl';
 import CreatableSelect from 'react-select/lib/Creatable';
@@ -167,13 +166,13 @@ class Create extends Component {
         tags: $this.state.tags,
         //author : $this.state.author,
     }
-    //console.log(postdata);
-    postdata.tags = postdata.tags.map(function(t){
-        return t.label;
-    })
+    console.log(postdata);
+    // postdata.tags = postdata.tags.map(function(t){
+    //     return t.label;
+    // })
     axioApi.post('/api/product/saveProductAndTag', postdata).then((res) => {
       console.log(res.data)
-      //$this.props.history.push('/product/index');
+      $this.props.history.push('/product/index');
     });
   }
   //upload image
@@ -319,7 +318,7 @@ render() {
                       </Col>
                       <Col sm="6">
                         <div className="form-group">
-                          <Label htmlFor="price"><strong>Giá gốc</strong></Label>
+                          <Label htmlFor="price_old"><strong>Giá gốc</strong></Label>
                           <Input type="number" onChange={this.changePriceOld} id="price_old" placeholder="Giá gốc" />
                         </div>
                       </Col>

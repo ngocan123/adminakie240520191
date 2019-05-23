@@ -76,6 +76,23 @@ export default {
       ],
     },
     {
+      name: 'Thư viện ảnh',
+      url: '/photo',
+      icon: 'icon-puzzle',
+      children: [
+        {
+          name: 'Danh sách ảnh',
+          url: '/photo/index',
+          icon: 'icon-puzzle',
+        },
+        {
+          name: 'Phân loại ảnh',
+          url: '/stylegallery/index',
+          icon: 'icon-puzzle',
+        }
+      ],
+    },
+    {
       name: 'Cấu hình hệ thống',
       url: '/setting',
       icon: 'icon-puzzle',

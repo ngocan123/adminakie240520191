@@ -8,12 +8,13 @@ import {
   Label,
   Row,
   Button, Modal, ModalBody, ModalFooter, ModalHeader,
-} from 'reactstrap'
-import axioApi from './../../config/axioConfig'
-import configUrl from './../../config/configUrl'
+} from 'reactstrap';
+import axioApi from './../../config/axioConfig';
+import configUrl from './../../config/configUrl';
 import qs from 'qs';
 import CreatableSelect from 'react-select/lib/Creatable';
-let $this
+
+let $this;
 class Create extends Component {
   constructor(props) {
       super(props); 
@@ -27,13 +28,11 @@ class Create extends Component {
         timeout: 300,
         primary: false,
         modal: false,
-        name : '', description : '', tags : [], alltags : [], 
-        author : '', imagePath: '', selectedFile: null,
+        name: '', description: '', tags: [], alltags : [], 
+        author: '', imagePath: '', selectedFile: null,
+        keyname: '',
         listCatProduct: [],
         gallerys: [],
-        listpositionmenu: [],
-        position_id: '',
-        keyname: '',
         parent_id: null,
         imageNumber: '',
         title_seo: '',
@@ -60,85 +59,40 @@ class Create extends Component {
   }
   //setup send data to serve
 changeName(e){
-    $this.setState({ name : e.target.value })
+    $this.setState({ name : e.target.value });
+}
+changeKeyname(e){
+  $this.setState({ keyname : e.target.value });
 }
 changeDescription(e) {
-  $this.setState({ description : e.target.value })
+  $this.setState({ description : e.target.value });
 }
 changeParentId(e) {
-  $this.setState({ parent_id : e.target.value })
-}
-changePositionId(e){
-  $this.setState({ position_id : e.target.value })
-  if(e.target.value!=''){
-    axioApi.get('/api/positionmenu/show/'+$this.props.match.params.id).then((res) => {
-      console.log(res.data)
-      $this.setState({
-          keyname: res.data.keyname,
-      })
-    })
-  }else{
-    $this.setState({
-      keyname: null,
-    })
-  }
+    $this.setState({ parent_id : e.target.value });
 }
 componentDidMount(){
-  this.showAllImage()
-  this.getAllImage()
-  this.getListCat()
-  this.listPosiitionmenu()
-}
-listPosiitionmenu(){
-  const filter = {}
- axioApi.get('/api/positionmenu/list?'+qs.stringify(filter)).then((res) => {
-   $this.setState({
-     listpositionmenu: res.data.posts
-   })
-   this.showpositionmenu()
- })
-}
-showpositionmenu(){
-  return $this.state.listpositionmenu.map(function(post, index){
-    return <option value={post._id}>
-    { post.name }
-    </option>
-  })
+  this.showAllImage();
+  this.getAllImage();
+  this.getListCat();
 }
 getListCat(){
-  axioApi.get('/api/menu/getAlls').then((res) => {
+  axioApi.get('/api/stylegallery/getAll').then((res) => {
     $this.setState({
       listCatProduct: res.data
     })
-  });
-}
-tabRowsListCat(){
-  return $this.state.listCatProduct.map(function(post){
-      
-      if(post._id==$this.state.parent_id){
-        return <option value={post._id} selected>
-        { post.name }
-        </option>
-      }else{
-        return <option value={post._id}>
-        { post.name }
-        </option>
-      }
-      
   });
 }
 savePost(){
   var postdata = {
     name: $this.state.name,
     description: $this.state.description,
+    keyname: $this.state.keyname,
     parent_id: $this.state.parent_id,
-    position_id: $this.state.position_id,
     imageNumber: $this.state.imageNumber,
     imagePath: $this.state.imagePath,
   }
-  //console.log(postdata)
-  axioApi.post('/api/menu/store', postdata).then((res) => {
-    $this.props.history.push('/menu/index');
+  axioApi.post('/api/stylegallery/store', postdata).then((res) => {
+    $this.props.history.push('/stylegallery/index');
   });
 }
 //upload image
@@ -184,8 +138,21 @@ showAllImage(){
     </Col>
   });
 }
-
-
+tabRowsListCat(){
+  return $this.state.listCatProduct.map(function(post){
+      
+      if(post._id==$this.state.parent_id){
+        return <option value={post._id} selected>
+        { post.name }
+        </option>
+      }else{
+        return <option value={post._id}>
+        { post.name }
+        </option>
+      } 
+      
+  });
+}
 render() {
     return (
       <div className="animated fadeIn">
@@ -193,35 +160,17 @@ render() {
           <Col xs="12" sm="12">
             <Card>
               <CardHeader>
-                <strong>Thêm menu</strong>
+                <strong>Thêm loại ảnh</strong>
                 <button onClick={this.savePost} className="btn btn-sm btn-primary flor">Cập nhật</button>
               </CardHeader>
               <CardBody>
                 <div className="form-group">
-                  <Label htmlFor="name"><strong>Tên menu</strong></Label>
-                  <Input type="text" onChange={this.changeName} id="name" placeholder="Tên danh mục" required />
+                  <Label htmlFor="name"><strong>Tên loại ảnh</strong></Label>
+                  <Input type="text" onChange={this.changeName} id="name" placeholder="Tên lại ảnh" required />
                 </div>
                 <div className="form-group">
-                  <Label htmlFor="parent_id"><strong>Chọn menu cha</strong></Label>
-                  <select className="form-control" name="parent_id" onChange={this.changeParentId}>
-                  <option value="">Chọn menu cha</option>
-                    {this.tabRowsListCat()}
-                  </select>
-                </div>
-                <div className="form-group">
-                  <Label htmlFor="position_id"><strong>Vị trí menu</strong></Label>
-                  <select className="form-control" name="position_id" onChange={this.changePositionId}>
-                  <option value="">Vị trí menu</option>
-                    {this.showpositionmenu()}
-                  </select>
-                </div>
-                <div className="form-group">
-                    <Label htmlFor="description"><strong>Ảnh đại diện</strong></Label>
-                    <div>
-                      <Button color="primary" onClick={this.togglePrimary} className="mr-1">Chọn ảnh</Button>
-                      <div className="showImage">{this.imagePath()}{this.imageNumbers()}
-                      </div>
-                    </div>
+                  <Label><strong>Mã loại ảnh</strong></Label>
+                  <Input type="text" name="keyname" onChange={this.changeKeyname} id="keyname" placeholder="Mã loại ảnh" required />
                 </div>
                 <div className="form-group">
                   <Label htmlFor="description"><strong>Mô tả</strong></Label>
@@ -241,7 +190,6 @@ render() {
               Tải ảnh
               <input type="file" name="file" onChange={this.onChangeHandler}/>
             </button>
-            
           </ModalHeader>
           <ModalBody>
            {this.showAllImage()}

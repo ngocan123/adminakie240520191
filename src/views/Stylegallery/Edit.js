@@ -30,14 +30,13 @@ class Create extends Component {
         modal: false,
         name : '', description : '', tags : [], alltags : [], 
         author : '', imagePath: '', selectedFile: null,
-        listCatProduct: [],
+        _id: null,
         gallerys: [],
-        parent_id: null,
-        imageNumber: '',
+        listCatProduct: [],
+        parent_id: '',
         title_seo: '',
         description_seo: '',
         keyword_seo: '',
-        _id: ''
       };
       $this = this;
   }
@@ -60,7 +59,10 @@ class Create extends Component {
 changeName(e){
     $this.setState({ name : e.target.value });
 }
-changeDescription(e) {
+changeKeyname(e){
+  $this.setState({ keyname : e.target.value });
+}
+changeDescription(e){
   $this.setState({ description : e.target.value });
 }
 changeParentId(e) {
@@ -76,20 +78,48 @@ changeKeyword_seo(e) {
   $this.setState({ keyword_seo : e.target.value });
 }
 componentDidMount(){
+  axioApi.get('/api/stylegallery/show/'+$this.props.match.params.id).then((res) => {
+    $this.setState({
+        _id: res.data._id,
+        name: res.data.name,
+        keyname: res.data.keyname,
+        description: res.data.description,
+        imagePath: res.data.imagePath,
+        imageNumber: res.data.imageNumber,
+        title_seo: res.data.title_seo,
+        description_seo: res.data.description_seo,
+        keyword_seo: res.data.keyword_seo,
+    });
+  });
   this.showAllImage();
   this.getAllImage();
   this.getListCat();
 }
 getListCat(){
-  axioApi.get('/api/catproduct/getAll').then((res) => {
+  axioApi.get('/api/menu/getAll').then((res) => {
     $this.setState({
       listCatProduct: res.data
     })
   });
 }
+tabRowsListCat(){
+  return $this.state.listCatProduct.map(function(post){
+    if(post._id==$this.state.parent_id){
+      return <option value={post._id} data-parent={$this.state.parent_id} selected>
+      { post.name }
+      </option>
+    }else{
+      return <option value={post._id} data-parent={$this.state.parent_id}>
+      { post.name }
+      </option>
+    }
+  });
+}
+
 savePost(){
   var postdata = {
     name: $this.state.name,
+    keyname: $this.state.keyname,
     description: $this.state.description,
     parent_id: $this.state.parent_id,
     imageNumber: $this.state.imageNumber,
@@ -98,10 +128,9 @@ savePost(){
     description_seo: $this.state.description_seo,
     keyword_seo: $this.state.keyword_seo,
   }
-  axioApi.post('/api/catproduct/store', postdata).then((res) => {
-    console.log(res)
-    //$this.props.history.push('/catproduct/index');
-  });
+  axioApi.post('/api/stylegallery/update/'+$this.state._id,postdata).then((res) => {
+    $this.props.history.push('/stylegallery/index')
+  })
 }
 //upload image
 getAllImage(){
@@ -113,7 +142,7 @@ getAllImage(){
 }
 getIdImage(id){
   axioApi.get('/api/gallery/show/'+id).then((res) => {
-    //console.log(res.data);
+    console.log(res.data);
     $this.setState({
       imageNumber: res.data._id,
       imagePath: res.data.path
@@ -146,19 +175,11 @@ showAllImage(){
     </Col>
   });
 }
-tabRowsListCat(){
-  return $this.state.listCatProduct.map(function(post){
-      
-      if(post._id==$this.state.parent_id){
-        return <option value={post._id} selected>
-        { post.name }
-        </option>
-      }else{
-        return <option value={post._id}>
-        { post.name }
-        </option>
-      } 
-      
+getListCat(){
+  axioApi.get('/api/menu/getAll').then((res) => {
+    $this.setState({
+      listCatProduct: res.data
+    })
   });
 }
 render() {
@@ -174,66 +195,39 @@ render() {
               <CardBody>
                 <div className="form-group">
                   <Label htmlFor="name"><strong>Tên danh mục</strong></Label>
-                  <Input type="text" onChange={this.changeName} id="name" placeholder="Tên danh mục" required />
+                  <Input type="text" value={$this.state.name} onChange={this.changeName} id="name" placeholder="Tên danh mục" required />
                 </div>
                 <div className="form-group">
-                  <Label htmlFor="parent_id">Danh mục cha</Label>
-                  <select className="form-control" name="parent_id" onChange={this.changeParentId}>
-                    <option value="">Danh mục cha</option>
-                    {this.tabRowsListCat()}
-                  </select>
-                </div>
-                <div className="form-group">
-                    <Label htmlFor="description">Ảnh đại diện</Label>
-                    <div>
-                      <Button color="primary" onClick={this.togglePrimary} className="mr-1">Chọn ảnh</Button>
-                      <div className="showImage">{this.imagePath()}{this.imageNumbers()}
-                      </div>
-                    </div>
+                  <Label><strong>Mã loại ảnh</strong></Label>
+                  <Input type="text" value={$this.state.keyname} name="keyname" onChange={this.changeKeyname} id="keyname" placeholder="Mã loại ảnh" required />
                 </div>
                 <div className="form-group">
                   <Label htmlFor="description"><strong>Mô tả</strong></Label>
-                  <Input type="textarea" onChange={this.changeDescription} name="description" id="description"
+                  <Input type="textarea" value={$this.state.description} onChange={this.changeDescription} name="description" id="description"
                         placeholder="Mô tả" rows="3"/>
-                </div>
-                <hr></hr>
-                <div className="form-group">
-                  <Label htmlFor="title_seo"><strong>Tiêu đề seo</strong></Label>
-                  <Input type="text" onChange={this.changeTitle_seo} id="title_seo" placeholder="Tiêu đề seo" />
-                </div>
-                <div className="form-group">
-                  <Label htmlFor="description_seo"><strong>Mô tả seo</strong></Label>
-                  <Input type="textarea" onChange={this.changeDescription_seo} name="description_seo" id="description_seo"
-                        placeholder="Mô tả seo" rows="3"/>
-                </div>
-                <div className="form-group">
-                  <Label htmlFor="description_seo"><strong>Từ khóa seo</strong></Label>
-                  <Input type="textarea" onChange={this.changeKeyword_seo} name="keyword_seo" id="keyword_seo"
-                        placeholder="Từ khóa seo" rows="3"/>
                 </div>
               </CardBody>
             </Card>
           </Col>
         </Row>
 
-
         <Modal isOpen={this.state.primary} toggle={this.togglePrimary}
-                className={'modal-primary modal-lg ' + this.props.className}>
-          <ModalHeader toggle={this.togglePrimary}>
-            <button className="buttonUploadImage">
-              Tải ảnh
-              <input type="file" name="file" onChange={this.onChangeHandler}/>
-            </button>
-            
-          </ModalHeader>
-          <ModalBody>
-           {this.showAllImage()}
-          </ModalBody>
-          <ModalFooter>
-            <Button color="primary" onClick={this.togglePrimary}>Cập nhật</Button>
-            <Button color="secondary" onClick={this.togglePrimary}>Bỏ qua</Button>
-          </ModalFooter>
-        </Modal>
+              className={'modal-primary modal-lg ' + this.props.className}>
+        <ModalHeader toggle={this.togglePrimary}>
+          <button className="buttonUploadImage">
+            Tải ảnh
+            <input type="file" name="file" onChange={this.onChangeHandler}/>
+          </button>
+          
+        </ModalHeader>
+        <ModalBody>
+         {this.showAllImage()}
+        </ModalBody>
+        <ModalFooter>
+          <Button color="primary" onClick={this.togglePrimary}>Cập nhật</Button>
+          <Button color="secondary" onClick={this.togglePrimary}>Bỏ qua</Button>
+        </ModalFooter>
+      </Modal>
       </div>
     );
   }
