@@ -9,8 +9,8 @@ import App from './App'
 import * as serviceWorker from './serviceWorker'
 let token = localStorage.getItem('token')  
 if(token){
-	axioApi.defaults.headers.common['x-access-token'] = localStorage.getItem('token');      
-	axioApi.get('/api/auth/checkToken').then((res) => { 
+	axioApi.defaults.headers.common['x-access-token'] = localStorage.getItem('token')   
+	axioApi.get('/api/auth/checkToken').then((res) => {
         localStorage.setItem('user_id', res.data._id)
 	}).catch((err) => {
         localStorage.removeItem('token')
