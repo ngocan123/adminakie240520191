@@ -1176,7 +1176,7 @@ You can now register proxies as you wish! Here's an example using the above `htt
 const proxy = require('http-proxy-middleware');
 
 module.exports = function(app) {
-  app.use(proxy('/api', { target: 'http://localhost:5000/' }));
+  app.use(proxy('/api', { target: 'http://localhost:3000/' }));
 };
 ```
 
@@ -1921,7 +1921,7 @@ npm install -g serve
 serve -s build
 ```
 
-The last command shown above will serve your static site on the port **5000**. Like many of [serve](https://github.com/zeit/serve)’s internal settings, the port can be adjusted using the `-p` or `--port` flags.
+The last command shown above will serve your static site on the port **3000**. Like many of [serve](https://github.com/zeit/serve)’s internal settings, the port can be adjusted using the `-p` or `--port` flags.
 
 Run this command to get a full list of the options available:
 
