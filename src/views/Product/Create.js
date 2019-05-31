@@ -46,12 +46,32 @@ class Create extends Component {
         title_seo: '',
         description_seo: '',
         keyword_seo: '',
-      };
+        //thuộc tính
+        getTypeOptionValue: '',
+        displayOption: {display: "none"}
+      }
+      this.typeOptionChange = this.typeOptionChange.bind(this)
+      this.displayTypeOption = []
       $this = this;
   }
-
+  //xử lý option
+  typeOptionChange(e){
+    console.log(e.target.getAttribute('value'))
+    $this.setState({
+      displayOption: {display:"none"}
+    })
+    $this.setState({
+      getTypeOptionValue: e.target.getAttribute('value')
+    })
+    this.displayTypeOption.push(<div id="display-type-option"><pre>{e.target.getAttribute('value')}</pre></div>)
+  }
+  inputOptionOnclick(){
+    $this.setState({
+      displayOption: {display:"block"}
+    })
+  }
   toggle(tab) {
-    $this.setState({ collapse: !$this.state.collapse });
+    $this.setState({ collapse: !$this.state.collapse })
     if (this.state.activeTab !== tab) {
       this.setState({
         activeTab: tab
@@ -131,11 +151,11 @@ class Create extends Component {
   //Danh sách nhà cung cấp
   getListSupplier(){
     axioApi.get('/api/supplier/getAll').then((res) => {
-      console.log(res.data)
+
       $this.setState({
         listSupplier: res.data
       })
-    });
+    })
   }
   //Danh sách loại sản phẩm
   getListStyle(){
@@ -143,14 +163,14 @@ class Create extends Component {
       $this.setState({
         listStyleProduct: res.data
       })
-    });
+    })
   }
   tabRowsSupplier(){
     return $this.state.listSupplier.map(function(post){
       return <option value={post._id}>
       { post.name }
       </option>
-    });
+    })
   }
   savePost(){
     const postdata = {
@@ -232,7 +252,6 @@ class Create extends Component {
 render() {
     return (
       <div className="animated fadeIn">
-      
         <Row>
           <Col xs="12" sm="12">
             <Card>
@@ -264,6 +283,14 @@ render() {
                     onClick={() => { this.toggle('6'); }}
                   >
                   <strong>Ảnh</strong>
+                  </NavLink>
+                </NavItem>
+                <NavItem>
+                  <NavLink
+                    className={classnames({ active: this.state.activeTab === '8' })}
+                    onClick={() => { this.toggle('8'); }}
+                  >
+                  <strong>Thuộc tính</strong>
                   </NavLink>
                 </NavItem>
                 </Nav>
@@ -368,6 +395,20 @@ render() {
                               </div>
                             </div>
                         </div>
+                      </Col>
+                    </Row>
+                  </TabPane>
+                  <TabPane tabId="8">
+                    <Row>
+                      <Col sm="3">
+                        <div id="displayTypeOption">
+                          {this.displayTypeOption}
+                        </div>
+                        <input className="form-control" placeholder="Thuộc tính" onClick={this.inputOptionOnclick}/>
+                        <ul className="ulListTypeOption" style={$this.state.displayOption}>
+                          <li onClick={this.typeOptionChange} value="checkbox">Checkbox</li>
+                          <li onClick={this.typeOptionChange} value="radio">Radio</li>
+                        </ul>
                       </Col>
                     </Row>
                   </TabPane>

@@ -34,7 +34,10 @@ body{background: red}
 .noactivemenu:hover{
     background-color: #63c2de;
     border-color: #63c2de;
-    color: #ffff !important;
+    color: #ffffff;
 }
+.ulListTypeOption{padding: 0px;border-radius: 4px;box-shadow: 0px 0px 4px #cccccc;margin-top: 8px;}
+.ulListTypeOption li{list-style: none;padding: 4px;}
+.ulListTypeOption li:hover{cursor: pointer;background: #cccccc;color: #ffffff}
 
 
