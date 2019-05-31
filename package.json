@@ -32,6 +32,7 @@
     "qs": "^6.7.0",
     "react": "^16.8.5",
     "react-app-polyfill": "^0.2.2",
+    "react-bootstrap": "^1.0.0-beta.8",
     "react-bootstrap-datatable": "^1.0.0",
     "react-chartjs-2": "^2.7.4",
     "react-dom": "^16.8.5",

@@ -9,12 +9,13 @@ import {
   Label,
   Row,
   Button, Modal, ModalBody, ModalFooter, ModalHeader
-} from 'reactstrap';
-import Select from 'react-select';
-import axioApi from './../../config/axioConfig';
-import configUrl from './../../config/configUrl';
-import CreatableSelect from 'react-select/lib/Creatable';
-import classnames from 'classnames';
+} from 'reactstrap'
+import Tabs from 'react-bootstrap/Tabs'
+import Select from 'react-select'
+import axioApi from './../../config/axioConfig'
+import configUrl from './../../config/configUrl'
+import CreatableSelect from 'react-select/lib/Creatable'
+import classnames from 'classnames'
 let $this;
 class Create extends Component {
   constructor(props, context) {
@@ -30,6 +31,7 @@ class Create extends Component {
         primary: false,
         modal: false,
         activeTab: '1',
+        activeTabs: '11',
         name : '', description : '', tags : [], alltags : [], author : '',
         selectedFile: null,
         listCatProduct: [],
@@ -63,7 +65,7 @@ class Create extends Component {
     $this.setState({
       getTypeOptionValue: e.target.getAttribute('value')
     })
-    this.displayTypeOption.push(<div id="display-type-option"><pre>{e.target.getAttribute('value')}</pre></div>)
+    this.displayTypeOption.push(<div className="display-type-option"><pre>{e.target.getAttribute('value')}</pre></div>)
   }
   inputOptionOnclick(){
     $this.setState({
@@ -75,6 +77,15 @@ class Create extends Component {
     if (this.state.activeTab !== tab) {
       this.setState({
         activeTab: tab
+      });
+    }
+  }
+  //tab loại thược tính
+  toggles(tab) {
+    $this.setState({ collapse: !$this.state.collapse })
+    if (this.state.activeTabs !== tab) {
+      this.setState({
+        activeTabs: tab
       });
     }
   }
@@ -409,6 +420,40 @@ render() {
                           <li onClick={this.typeOptionChange} value="checkbox">Checkbox</li>
                           <li onClick={this.typeOptionChange} value="radio">Radio</li>
                         </ul>
+                      </Col>
+                      <Col sm="12">
+                        <div className="col-sm-3">
+                          <Nav tabs>
+                            <NavItem style={{display: "block"}}>
+                              <NavLink
+                                className={classnames({ active: this.state.activeTabs === '11' })}
+                                onClick={() => { this.toggles('11'); }}
+                              >
+                              <strong>Chung</strong>
+                              </NavLink>
+                            </NavItem>
+                            <NavItem style={{display: "block"}}>
+                              <NavLink
+                                className={classnames({ active: this.state.activeTabs === '12' })}
+                                onClick={() => { this.toggles('12'); }}
+                              >
+                              <strong>Dữ liệu</strong>
+                              </NavLink>
+                            </NavItem>
+                          </Nav>
+                          <TabContent activeTab={this.state.activeTabs}>
+                            <TabPane tabId="11">
+                              <Row>
+                                tesst11
+                              </Row>
+                            </TabPane>
+                             <TabPane tabId="12">
+                              <Row>
+                                test12
+                              </Row>
+                            </TabPane>
+                          </TabContent>
+                        </div>
                       </Col>
                     </Row>
                   </TabPane>
