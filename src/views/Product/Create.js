@@ -16,6 +16,10 @@ import axioApi from './../../config/axioConfig'
 import configUrl from './../../config/configUrl'
 import CreatableSelect from 'react-select/lib/Creatable'
 import classnames from 'classnames'
+//ckeditor
+import CKEditor from 'ckeditor4-react';
+//import CKEditor from '@ckeditor/ckeditor5-react'
+//import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
 let $this;
 class Create extends Component {
   constructor(props, context) {
@@ -45,6 +49,8 @@ class Create extends Component {
         imagePath: '',
         price: 0,
         price_old: 0,
+        code: '',
+        detail: '',
         title_seo: '',
         description_seo: '',
         keyword_seo: '',
@@ -72,6 +78,9 @@ class Create extends Component {
       displayOption: {display:"block"}
     })
   }
+  removeTypeOption(e){
+    console.log(e.target.getAttribute('data-key'))
+  }          
   toggle(tab) {
     $this.setState({ collapse: !$this.state.collapse })
     if (this.state.activeTab !== tab) {
@@ -108,12 +117,20 @@ class Create extends Component {
   changePriceOld(e){
     $this.setState({ price_old: e.target.value });
   }
+  changeCode(e){
+    $this.setState({ code: e.target.value });
+  }
   changeName(e){
     $this.setState({ name : e.target.value });
   }
 
   changeDescription(e){
-      $this.setState({ description : e.target.value });
+    console.log(e.editor.getData())
+    $this.setState({ description : e.editor.getData() });
+  }
+  changeDetail(e){
+    //console.log(e.editor.getData())
+    $this.setState({ detail : e.editor.getData() });
   }
   changeCategoryId(e){
     $this.setState({
@@ -186,6 +203,7 @@ class Create extends Component {
   savePost(){
     const postdata = {
         name: $this.state.name,
+        code: $this.state.code,
         price: $this.state.price,
         price_old: $this.state.price_old,
         category_id: $this.state.category_id,
@@ -194,6 +212,7 @@ class Create extends Component {
         imageNumber: $this.state.imageNumber,
         imagePath: $this.state.imagePath,
         description: $this.state.description,
+        detail: $this.state.detail,
         tags: $this.state.tags,
         //author : $this.state.author,
     }
@@ -315,8 +334,40 @@ render() {
                             </div>
                             <div className="form-group">
                               <Label htmlFor="description"><strong>Mô tả</strong></Label>
-                              <Input type="textarea" onChange={this.changeDescription} name="description" id="description"
-                                    placeholder="Mô tả" rows="3"/>
+                              <CKEditor
+                                  data=""
+                                  onChange={this.changeDescription}
+                                  placeholder="Mô tả sản phẩm"
+                                  config={ {
+                                      toolbar: [ [ 'Source','Bold', 'Italic', 'TextColor', 'BgColor', 'Styles', 'Font', 'Format', 'FontSize', 'NumberedList', 'BulletedList' ] ]
+                                  } }
+                              />
+                            </div>
+                            <div className="form-group">
+                              <Label htmlFor="detail"><strong>Chi tiết</strong></Label>
+                              <CKEditor
+                                  data=""
+                                  onChange={this.changeDetail}
+                                  scriptUrl="http://dummy.com/ckeditor/ckeditor.js"
+                              />
+                              {/* <CKEditor
+                                  editor={ ClassicEditor }
+                                  data="<p>Hello from CKEditor 5!</p>"
+                                  onInit={ editor => {
+                                      // You can store the "editor" and use when it is needed.
+                                      console.log( 'Editor is ready to use!', editor );
+                                  } }
+                                  onChange={ ( event, editor ) => {
+                                      const data = editor.getData();
+                                      console.log( { event, editor, data } );
+                                  } }
+                                  onBlur={ editor => {
+                                      console.log( 'Blur.', editor );
+                                  } }
+                                  onFocus={ editor => {
+                                      console.log( 'Focus.', editor );
+                                  } }
+                              /> */}
                             </div>
                             <hr></hr>
                             <div className="form-group">
@@ -325,12 +376,12 @@ render() {
                             </div>
                             <div className="form-group">
                               <Label htmlFor="description_seo"><strong>Mô tả seo</strong></Label>
-                              <Input type="textarea" onChange={this.changeDescription} name="description_seo" id="description_seo"
+                              <Input type="textarea" onChange={this.changeDescriptionSeo} name="description_seo" id="description_seo"
                                     placeholder="Mô tả seo" rows="3"/>
                             </div>
                             <div className="form-group">
                               <Label htmlFor="description_seo"><strong>Từ khóa seo</strong></Label>
-                              <Input type="textarea" onChange={this.changeDescription} name="keyword_seo" id="keyword_seo"
+                              <Input type="textarea" onChange={this.changeKeywordSeo} name="keyword_seo" id="keyword_seo"
                                     placeholder="Từ khóa seo" rows="3"/>
                             </div>
                             <div className="form-group">
@@ -358,6 +409,12 @@ render() {
                         <div className="form-group">
                           <Label htmlFor="price_old"><strong>Giá gốc</strong></Label>
                           <Input type="number" onChange={this.changePriceOld} id="price_old" placeholder="Giá gốc" />
+                        </div>
+                      </Col>
+                      <Col sm="6">
+                        <div className="form-group">
+                          <Label htmlFor="code"><strong>Mã sản phẩm</strong></Label>
+                          <Input type="text" onChange={this.changeCode} name="code" id="code" placeholder="Mã sản phẩm" />
                         </div>
                       </Col>
                       <Col sm="6">
@@ -407,54 +464,83 @@ render() {
                             </div>
                         </div>
                       </Col>
+                      <Col sm="6">
+                        <div className="form-group">
+                            <Label htmlFor="image"><strong>Ảnh slider</strong></Label>
+                            <div>
+                              <Button color="primary" onClick={this.togglePrimary} className="mr-1">Chọn ảnh</Button>
+                              <div className="showImage">
+                                {this.imagePath()}{this.imageNumbers()}
+                              </div>
+                            </div>
+                        </div>
+                      </Col>
                     </Row>
                   </TabPane>
                   <TabPane tabId="8">
                     <Row>
-                      <Col sm="3">
-                        <div id="displayTypeOption">
-                          {this.displayTypeOption}
-                        </div>
-                        <input className="form-control" placeholder="Thuộc tính" onClick={this.inputOptionOnclick}/>
-                        <ul className="ulListTypeOption" style={$this.state.displayOption}>
-                          <li onClick={this.typeOptionChange} value="checkbox">Checkbox</li>
-                          <li onClick={this.typeOptionChange} value="radio">Radio</li>
-                        </ul>
-                      </Col>
+                      
                       <Col sm="12">
-                        <div className="col-sm-3">
-                          <Nav tabs>
-                            <NavItem style={{display: "block"}}>
+                        <div className="col-sm-3" style={{float:"left"}}>
+                          <Nav tabs className="box-tab-option">
+                            <NavItem style={{display: "block",width:"100%"}}>
+                            
                               <NavLink
-                                className={classnames({ active: this.state.activeTabs === '11' })}
-                                onClick={() => { this.toggles('11'); }}
+                                className={classnames({ active: this.state.activeTabs === '1' })}
+                                onClick={() => { this.toggles('1'); }}
                               >
-                              <strong>Chung</strong>
+                              <i class="fa fa-minus-circle" aria-hidden="true" data-key="0" onClick={this.removeTypeOption}></i>
+                              <strong>Checkbox</strong>
                               </NavLink>
                             </NavItem>
-                            <NavItem style={{display: "block"}}>
+                            <NavItem className="active" style={{display: "block",width:"100%"}}>
                               <NavLink
-                                className={classnames({ active: this.state.activeTabs === '12' })}
-                                onClick={() => { this.toggles('12'); }}
+                                className={classnames({ active: this.state.activeTabs === '2' })}
+                                onClick={() => { this.toggles('2'); }}
                               >
-                              <strong>Dữ liệu</strong>
+                              <i class="fa fa-minus-circle" aria-hidden="true" data-key="1" onClick={this.removeTypeOption}></i>
+                              <strong>Radio</strong>
                               </NavLink>
                             </NavItem>
                           </Nav>
+                          <div className="clearfix"></div>
+                          <div id="displayTypeOption">
+                            {this.displayTypeOption}
+                          </div>
+                          <input className="form-control" placeholder="Thuộc tính" onClick={this.inputOptionOnclick}/>
+                          <ul className="ulListTypeOption" style={$this.state.displayOption}>
+                            <li onClick={this.typeOptionChange} value="checkbox">Checkbox</li>
+                            <li onClick={this.typeOptionChange} value="radio">Radio</li>
+                          </ul>
+                        </div>
+                        <div className="col-sm-9" style={{float:"left"}}>
                           <TabContent activeTab={this.state.activeTabs}>
-                            <TabPane tabId="11">
+                            <TabPane tabId="1">
                               <Row>
-                                tesst11
+                                <Col sm="12">
+                                  <table className="table table-bordered">
+                                    <thead>
+                                      <tr>
+                                        <th>
+                                          T
+                                        </th>
+                                      </tr>
+                                    </thead>
+                                  </table>
+                                </Col>
                               </Row>
                             </TabPane>
-                             <TabPane tabId="12">
+                            <TabPane tabId="2">
                               <Row>
-                                test12
+                                <Col sm="12">
+                                  test12
+                                </Col>
                               </Row>
                             </TabPane>
                           </TabContent>
                         </div>
                       </Col>
+                      
                     </Row>
                   </TabPane>
                 </TabContent>
