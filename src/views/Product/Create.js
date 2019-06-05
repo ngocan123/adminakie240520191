@@ -29,6 +29,7 @@ class Create extends Component {
       this.toggle = this.toggle.bind(this);
       this.togglePrimary = this.togglePrimary.bind(this);
       this.state = {
+        typeImage: '',
         collapse: true,
         fadeIn: true,
         timeout: 300,
@@ -47,6 +48,8 @@ class Create extends Component {
         gallerys: [],
         imageNumber: '',
         imagePath: '',
+        imageArray: [],
+        imageArrayData: [],
         price: 0,
         price_old: 0,
         code: '',
@@ -58,6 +61,7 @@ class Create extends Component {
         getTypeOptionValue: '',
         displayOption: {display: "none"}
       }
+      this.getIdImage = this.getIdImage.bind(this)
       this.typeOptionChange = this.typeOptionChange.bind(this)
       this.displayTypeOption = []
       $this = this;
@@ -103,12 +107,13 @@ class Create extends Component {
     $this.setState((prevState) => { return { fadeIn: !prevState }});
   }
   //Hien thi modal primary
-  togglePrimary() {
-    this.showAllImage();
+  togglePrimary(e) {
+    console.log(e.target.getAttribute('data-type'))
+    this.showAllImage()
     this.setState({
+      typeImage: e.target.getAttribute('data-type'),
       primary: !this.state.primary,
-    });
-
+    })
   }
   //setup send data to serve
   changePrice(e){
@@ -160,6 +165,7 @@ class Create extends Component {
       this.getListCat();
       this.getListSupplier();
       this.getListStyle();
+      this.getSldierImage();
   }
   //Danh sách danh mục
   getListCat(){
@@ -188,6 +194,7 @@ class Create extends Component {
   //Danh sách loại sản phẩm
   getListStyle(){
     axioApi.get('/api/styleproduct/getAll').then((res) => {
+      // console.log(res.data)
       $this.setState({
         listStyleProduct: res.data
       })
@@ -211,20 +218,69 @@ class Create extends Component {
         styles_id: $this.state.styles_id,
         imageNumber: $this.state.imageNumber,
         imagePath: $this.state.imagePath,
+        imageArray: $this.state.imageArray,
         description: $this.state.description,
         detail: $this.state.detail,
         tags: $this.state.tags,
         //author : $this.state.author,
     }
-    console.log(postdata);
+    //console.log(postdata);
     // postdata.tags = postdata.tags.map(function(t){
-    //     return t.label;
+    //     return t.label
     // })
     axioApi.post('/api/product/saveProductAndTag', postdata).then((res) => {
-      console.log(res.data)
-      $this.props.history.push('/product/index');
+      //console.log(res.data)
+      $this.props.history.push('/product/index')
     });
   }
+  getSldierImage(){
+    let dataId = $this.state.imageArray
+    axioApi.get('/api/gallery/listDataWithId?dataId='+dataId).then((res) => {
+      const datas = res.data
+      this.setState({
+        imageArrayData: res.data
+      })
+      
+    })
+  }
+  removeItemSliderImage(id){
+    let index = $this.state.imageArray.indexOf(id)
+    let datas = $this.state.imageArray
+    //console.log(datas.length)
+    if(datas.length<=1){
+      //alert('hết ảnh')
+      $this.setState({
+        imageArray: []
+      })
+      this.getSldierImage()
+    }else{
+      datas.splice(index, 1)
+      $this.setState({
+        imageArray: datas
+      })
+      this.getSldierImage()
+    }
+    //this.getSldierImage()
+  }
+  showSliderImage(){
+    if($this.state.imageArrayData.length>0){
+      return $this.state.imageArrayData.map(function(post){
+        return <tr value={post._id}>
+        <td><img style={{width: "80px",height: "80px"}} src={configUrl.baseURL+post.path} /></td>
+        <td><input className="form-control" name="" data-value={post._id} data-sort="" /></td>
+        <td>
+          <button className="btn btn-sm btn-danger" onClick={(e) => $this.removeItemSliderImage(post._id)} data-value={post._id}>
+            <i className="fa fa-minus-circle" aria-hidden="true"></i>
+          </button>
+        </td>
+        </tr>
+      })
+    }else{
+      return ""
+    }
+    
+  }
+  
   //upload image
   getAllImage(){
     axioApi.get('/api/gallery/getAll').then((res) => {
@@ -236,17 +292,31 @@ class Create extends Component {
   getIdImage(id){
     axioApi.get('/api/gallery/show/'+id).then((res) => {
       //console.log(res.data);
-      $this.setState({
-        imageNumber: res.data._id,
-        imagePath: res.data.path
-      });
-    });
+      if($this.state.typeImage=='itemImage'){
+        $this.setState({
+          imageNumber: res.data._id,
+          imagePath: res.data.path
+        })
+      }else if($this.state.typeImage=='galleryImage'){
+        if($this.state.imageArray.indexOf(res.data._id)<0){
+          var dataGallery = $this.state.imageArray.concat(res.data._id)
+          $this.setState({
+            imageArray: dataGallery
+          })
+          this.getSldierImage()
+        }else{
+          alert('Đã tồn tại ảnh')
+        }
+      }
+      
+    })
+    //this.getSldierImage()
   }
   imageNumbers(){
     if($this.state.imageNumber!=''){
-      return <input name='imageNumber' className="hidden" value={$this.state.imageNumber}/>;
+      return <input name='imageNumber' className="hidden" value={$this.state.imageNumber}/>
     }else{
-      return '';
+      return ''
     }
   }
   imagePath(){
@@ -457,7 +527,7 @@ render() {
                         <div className="form-group">
                             <Label htmlFor="image"><strong>Ảnh đại diện</strong></Label>
                             <div>
-                              <Button color="primary" onClick={this.togglePrimary} className="mr-1">Chọn ảnh</Button>
+                              <Button color="primary" onClick={this.togglePrimary} data-type="itemImage" className="mr-1">Chọn ảnh</Button>
                               <div className="showImage">
                                 {this.imagePath()}{this.imageNumbers()}
                               </div>
@@ -467,11 +537,23 @@ render() {
                       <Col sm="6">
                         <div className="form-group">
                             <Label htmlFor="image"><strong>Ảnh slider</strong></Label>
-                            <div>
-                              <Button color="primary" onClick={this.togglePrimary} className="mr-1">Chọn ảnh</Button>
-                              <div className="showImage">
-                                {this.imagePath()}{this.imageNumbers()}
-                              </div>
+                            <div className="clearfix">
+                              <Button color="primary" onClick={this.togglePrimary} data-type="galleryImage" className="mr-1">Chọn ảnh</Button>
+                              
+                            </div>
+                            <div className="listImage clearfix">
+                              <table className="table table-bordered table-hover">
+                                <thead>
+                                  <tr>
+                                    <th>Ảnh</th>
+                                    <th>Sắp xếp</th>
+                                    <th></th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {this.showSliderImage()}
+                                </tbody>
+                              </table>
                             </div>
                         </div>
                       </Col>
@@ -479,7 +561,7 @@ render() {
                   </TabPane>
                   <TabPane tabId="8">
                     <Row>
-                      
+
                       <Col sm="12">
                         <div className="col-sm-3" style={{float:"left"}}>
                           <Nav tabs className="box-tab-option">
@@ -489,7 +571,7 @@ render() {
                                 className={classnames({ active: this.state.activeTabs === '1' })}
                                 onClick={() => { this.toggles('1'); }}
                               >
-                              <i class="fa fa-minus-circle" aria-hidden="true" data-key="0" onClick={this.removeTypeOption}></i>
+                              <i className="fa fa-minus-circle" aria-hidden="true" data-key="0" onClick={this.removeTypeOption}></i>
                               <strong>Checkbox</strong>
                               </NavLink>
                             </NavItem>
@@ -498,7 +580,7 @@ render() {
                                 className={classnames({ active: this.state.activeTabs === '2' })}
                                 onClick={() => { this.toggles('2'); }}
                               >
-                              <i class="fa fa-minus-circle" aria-hidden="true" data-key="1" onClick={this.removeTypeOption}></i>
+                              <i className="fa fa-minus-circle" aria-hidden="true" data-key="1" onClick={this.removeTypeOption}></i>
                               <strong>Radio</strong>
                               </NavLink>
                             </NavItem>
