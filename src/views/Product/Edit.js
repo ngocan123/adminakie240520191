@@ -9,12 +9,15 @@ import {
   Label,
   Row,
   Button, Modal, ModalBody, ModalFooter, ModalHeader
-} from 'reactstrap';
+} from 'reactstrap'
 //import ManagerGallery from './../Gallery/ManagerGallery';
-import axioApi from './../../config/axioConfig';
-import configUrl from './../../config/configUrl';
-import CreatableSelect from 'react-select/lib/Creatable';
-import classnames from 'classnames';
+import Select from 'react-select'
+import axioApi from './../../config/axioConfig'
+import configUrl from './../../config/configUrl'
+import CreatableSelect from 'react-select/lib/Creatable'
+import classnames from 'classnames'
+//Ckeditor
+import CKEditor from 'ckeditor4-react'
 let $this;
 class Create extends Component {
   constructor(props, context) {
@@ -30,21 +33,27 @@ class Create extends Component {
         primary: false,
         modal: false,
         activeTab: '1',
-        name : '', description : '', tags : [], alltags : [], author : '',
+        name: '', description: '', detail: '', tags: [], alltags: [], author: '',
         selectedFile: null,
+        listCatProduct: [],
+        listSupplier: [],
+        category_id: null,
+        supplier_id: null,
+        dataSupplier: {value: "",label: "Chọn nhà cung cấp"},
+        style_ids: [],
+        listStyleProduct: [],
+        dataStyle: [],
         gallerys: [],
         imageNumber: '',
         imagePath: '',
-        listCatProduct: [],
         price: 0,
         price_old: 0,
         _id: '',
-        tags: '',
         title_seo: '',
         description_seo: '',
         keyword_seo: ''
       };
-      $this = this;
+      $this = this
   }
 
   toggle(tab) {
@@ -75,27 +84,48 @@ changePrice(e){
 changePriceOld(e){
   $this.setState({ price_old: e.target.value });
 }
+changeCode(e){
+  $this.setState({ code: e.target.value });
+}
 changeName(e){
   $this.setState({ name : e.target.value });
+}
+changeDescription(e){
+  $this.setState({ description : e.editor.getData() });
+}
+changeDetail(e){
+$this.setState({ detail : e.editor.getData() });
 }
 changeCategoryId(e) {
   $this.setState({ category_id : e.target.value });
 }
-changeDescription(e){
-    $this.setState({ description : e.target.value });
+changeSupplierId = (vsup) => {
+  $this.setState({
+    supplier_id: vsup.value,
+    dataSupplier: {value: vsup.value, label: vsup.label}
+  })
 }
+changeStyleProductId = (vsup) => {
+  console.log(vsup)
+  $this.setState({
+    styles_id: vsup
+  })
+}
+
 tagsSelectChange = (selectedtag) => {
-    $this.setState({ tags : selectedtag });
+    $this.setState({ tags : selectedtag })
 }
 componentDidMount(){
     this.getItemPost();
     axioApi.get('/api/product/getAllTags').then((res) => {
         $this.setState({
             alltags : res.data,
-        });
-    });
-    this.getAllImage();
-    this.getListCat();
+        })
+    })
+    this.getAllImage()
+    this.getListCat()
+    this.getListSupplier()
+    this.getListStyle()
 }
 onChangeHandler = event=>{
   this.setState({
@@ -108,23 +138,36 @@ getItemPost(){
       _id: $this.props.match.params.id
   });
   axioApi.get('/api/product/show/'+$this.props.match.params.id).then((res) => {
-      const tags = res.data.tags.map(function(obj, i){
-          return {value: obj.label, label:obj.label};
-      });
-      if(res.data.category_id){
+      const tags = res.data.data.tags.map(function(obj, i){
+          return {value: obj._id, label:obj.label};
+      })
+      // Hiển thị loại sản phẩm
+      const dataStyle = res.data.listStyle.map(function(obj, i){
+        return {value: obj._id, label:obj.name};
+      })
+      if(res.data.itemSupplier){
+        let dataSupplier = {id:res.data.itemSupplier._id,label:res.data.itemSupplier.name}
         $this.setState({
-          category_id: res.data.category_id._id
+          dataSupplier: dataSupplier
+        })
+      }
+      if(res.data.data.category_id){
+        $this.setState({
+          category_id: res.data.data.category_id._id
         });
       }
       $this.setState({
-          _id: res.data._id,
-          name: res.data.name,
-          description: res.data.description,
-          price: res.data.price,
-          price_old: res.data.price_old,
-          imageNumber: res.data.imageNumber,
-          imagePath: res.data.imagePath,
-          tags:tags,
+          _id: res.data.data._id,
+          name: res.data.data.name,
+          code: res.data.data.code,
+          detail: res.data.data.detail,
+          description: res.data.data.description,
+          price: res.data.data.price,
+          price_old: res.data.data.price_old,
+          imageNumber: res.data.data.imageNumber,
+          imagePath: res.data.data.imagePath,
+          tags: tags,
+          dataStyle: dataStyle
       });
   });
 }
@@ -150,6 +193,31 @@ tabRowsListCat(){
   });
 }
 //Kết thúc lấy danh sách sản phẩm
+//Danh sách nhà cung cấp
+getListSupplier(){
+  axioApi.get('/api/supplier/getAll').then((res) => {
+
+    $this.setState({
+      listSupplier: res.data
+    })
+  })
+}
+//Danh sách loại sản phẩm
+getListStyle(){
+  axioApi.get('/api/styleproduct/getAll').then((res) => {
+    // console.log(res.data)
+    $this.setState({
+      listStyleProduct: res.data
+    })
+  })
+}
+tabRowsSupplier(){
+  return $this.state.listSupplier.map(function(post){
+    return <option value={post._id}>
+    { post.name }
+    </option>
+  })
+}
 savePost(){
   const postdata = {
       _id: $this.state._id,
@@ -163,9 +231,13 @@ savePost(){
       tags: $this.state.tags,
       //author : $this.state.author,
   }
+  postdata.tags = postdata.tags.map(function(t){
+      return t.label
+  })
   console.log(postdata);
   axioApi.post('/api/product/saveProductAndTagAsync', postdata).then((res) => {
-    $this.props.history.push('/product/index');
+    console.log(res.data)
+    //$this.props.history.push('/product/index');
   });
 }
 //upload image
@@ -256,11 +328,29 @@ render() {
                             <Label htmlFor="name"><strong>Tên sản phẩm</strong></Label>
                             <Input type="text" value={$this.state.name} onChange={this.changeName} id="name" placeholder="Tên sản phẩm" required />
                           </div>
-                          <div className="form-group">
+                          {/* <div className="form-group">
                             <Label htmlFor="description"><strong>Mô tả</strong></Label>
                             <Input type="textarea" value={this.state.description} onChange={this.changeDescription} name="description" id="description"
                                   placeholder="Mô tả" rows="3"/>
+                          </div> */}
+                          <div className="form-group">
+                            <Label htmlFor="description"><strong>Mô tả</strong></Label>
+                            <CKEditor
+                                data={this.state.description}
+                                onChange={this.changeDescription}
+                                placeholder="Mô tả sản phẩm"
+                                config={ {
+                                    toolbar: [ [ 'Source','Bold', 'Italic', 'TextColor', 'BgColor', 'Styles', 'Font', 'Format', 'FontSize', 'NumberedList', 'BulletedList' ] ]
+                                } }
+                            />
                           </div>
+                          <div className="form-group">
+                              <Label htmlFor="detail"><strong>Chi tiết</strong></Label>
+                              <CKEditor
+                                  data={$this.state.detail}
+                                  onChange={this.changeDetail}
+                              />
+                            </div>
                           <hr></hr>
                           <div className="form-group">
                             <Label htmlFor="title_seo"><strong>Tiêu đề seo</strong></Label>
@@ -268,16 +358,16 @@ render() {
                           </div>
                           <div className="form-group">
                             <Label htmlFor="description_seo"><strong>Mô tả seo</strong></Label>
-                            <Input type="textarea" value={this.state.description_seo} onChange={this.changeDescription} name="description_seo" id="description_seo"
+                            <Input type="textarea" value={this.state.description_seo} onChange={this.changeDescriptionSeo} name="description_seo" id="description_seo"
                                   placeholder="Mô tả seo" rows="3"/>
                           </div>
                           <div className="form-group">
                             <Label htmlFor="description_seo"><strong>Từ khóa seo</strong></Label>
-                            <Input type="textarea" value={this.state.keyword_seo} onChange={this.changeDescription} name="keyword_seo" id="keyword_seo"
+                            <Input type="textarea" value={this.state.keyword_seo} onChange={this.changeKeywordSeo} name="keyword_seo" id="keyword_seo"
                                   placeholder="Từ khóa seo" rows="3"/>
                           </div>
                           <div className="form-group">
-                              <Label htmlFor="description"><strong>Tags sản phẩm</strong></Label>
+                              <Label htmlFor="Tagsproduct"><strong>Tags sản phẩm</strong></Label>
                               <CreatableSelect
                                   isClearable
                                   onChange={this.tagsSelectChange}
@@ -305,6 +395,12 @@ render() {
                       </div>
                     </Col>
                     <Col sm="6">
+                        <div className="form-group">
+                          <Label htmlFor="code"><strong>Mã sản phẩm</strong></Label>
+                          <Input type="text" value={$this.state.code} onChange={this.changeCode} name="code" id="code" placeholder="Mã sản phẩm" />
+                        </div>
+                      </Col>
+                    <Col sm="6">
                       <div className="form-group">
                         <Label htmlFor="parent_id"><strong>Danh mục sản phẩm</strong></Label>
                         <select className="form-control" name="parent_id" onChange={this.changeCategoryId}>
@@ -313,6 +409,31 @@ render() {
                         </select>
                       </div>
                     </Col>
+                    <Col sm="6">
+                        <div className="form-group">
+                          <Label htmlFor="supplier_id"><strong>Nhà cung cấp</strong></Label>
+                          <Select
+                              isMulti= {false}
+                              placeholder= "Chọn nhà cung cấp"
+                              onChange= {this.changeSupplierId}
+                              options= {$this.state.listSupplier}
+                              value= {$this.state.dataSupplier}
+                            />
+                        </div>
+                      </Col>
+                      <Col sm="6">
+                        <div className="form-group">
+                          <Label htmlFor="styles_id"><strong>Loại sản phẩm</strong></Label>
+                          <Select
+                              isClearable
+                              onChange={this.changeStyleProductId}
+                              //onInputChange={this.handleInputChange}
+                              options={this.state.listStyleProduct}
+                              value={this.state.dataStyle}
+                              isMulti = {true}
+                            />
+                        </div>
+                      </Col>
                   </Row>
                 </TabPane>
                 <TabPane tabId="6">

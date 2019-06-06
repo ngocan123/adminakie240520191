@@ -41,6 +41,7 @@ class Create extends Component {
         selectedFile: null,
         listCatProduct: [],
         listSupplier: [],
+        dataSupplier: null,
         category_id: null,
         supplier_id: null,
         style_ids: [],
@@ -130,11 +131,9 @@ class Create extends Component {
   }
 
   changeDescription(e){
-    console.log(e.editor.getData())
     $this.setState({ description : e.editor.getData() });
   }
-  changeDetail(e){
-    //console.log(e.editor.getData())
+  changeDetail(e){ 
     $this.setState({ detail : e.editor.getData() });
   }
   changeCategoryId(e){
@@ -145,7 +144,7 @@ class Create extends Component {
   changeSupplierId = (vsup) => {
     $this.setState({
       supplier_id: vsup.value
-    });
+    })
   }
   changeStyleProductId = (vsup) => {
     $this.setState({
@@ -224,12 +223,11 @@ class Create extends Component {
         tags: $this.state.tags,
         //author : $this.state.author,
     }
-    //console.log(postdata);
-    // postdata.tags = postdata.tags.map(function(t){
-    //     return t.label
-    // })
+    console.log(postdata);
+    postdata.tags = postdata.tags.map(function(t){
+        return t.label
+    })
     axioApi.post('/api/product/saveProductAndTag', postdata).then((res) => {
-      //console.log(res.data)
       $this.props.history.push('/product/index')
     });
   }
